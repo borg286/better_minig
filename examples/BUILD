@@ -15,4 +15,14 @@ package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])  # Apache 2.0
 
-exports_files(["LICENSE"])
+load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_library")
+
+jsonnet_library(
+    name = "deploy_lib",
+    srcs = ["deployment.libsonnet"],
+)
+
+jsonnet_library(
+    name = "container_lib",
+    srcs = ["container.libsonnet"],
+)

@@ -13,6 +13,24 @@
 # limitations under the License.
 package(default_visibility = ["//visibility:public"])
 
-licenses(["notice"])  # Apache 2.0
+load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+load("@org_pubref_rules_protobuf//go:rules.bzl", "GRPC_COMPILE_DEPS")
 
-exports_files(["LICENSE"])
+go_image(
+    name = "server",
+    srcs = ["main.go"],
+    importpath = "github.com/bazelbuild/not-my-project/examples/hellogrpc/go/server",
+    deps = [
+        "//examples/hellogrpc/proto:go",
+    ] + GRPC_COMPILE_DEPS,
+)
+
+load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
+
+k8s_deploy(
+    name = "staging",
+    images = {
+        "us.gcr.io/not-my-project/hello-grpc:staging": ":server",
+    },
+    template = "//examples/hellogrpc:deployment.json",
+)

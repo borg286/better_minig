@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.examples.hellogrpc.server;
+package io.bazel.rules_k8s.examples.helloworld.java.server;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -22,9 +22,9 @@ import io.grpc.stub.StreamObserver;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import com.examples.hellogrpc.proto.SimpleGrpc;
-import com.examples.hellogrpc.proto.FooRequest;
-import com.examples.hellogrpc.proto.FooReply;
+import io.bazel.rules_k8s.examples.helloworld.proto.SimpleGrpc;
+import io.bazel.rules_k8s.examples.helloworld.proto.FooRequest;
+import io.bazel.rules_k8s.examples.helloworld.proto.FooReply;
 
 // Based on the gRPC samples from github.com/pubref/rules_protobuf
 public class HelloServer {

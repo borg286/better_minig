@@ -15,4 +15,15 @@ package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])  # Apache 2.0
 
-exports_files(["LICENSE"])
+cc_library(
+    name = "simple_lib",
+    srcs = ["simple.cc"],
+    hdrs = ["simple.h"],
+    deps = ["//examples/hellogrpc/proto:cc"],
+)
+
+cc_binary(
+    name = "client",
+    srcs = ["main.cc"],
+    deps = [":simple_lib"],
+)

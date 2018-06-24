@@ -11,4 +11,4 @@ spec:
     targetPort: 50051
   selector:
     app: hello-grpc-staging
-  type: NodePort
+  type: LoadBalancer

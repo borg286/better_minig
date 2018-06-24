@@ -15,4 +15,25 @@ package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])  # Apache 2.0
 
-exports_files(["LICENSE"])
+load("@io_bazel_rules_docker//java:image.bzl", "java_image")
+
+java_image(
+    name = "server",
+    srcs = ["HelloServer.java"],
+    main_class = "io.bazel.rules_k8s.examples.helloworld.java.server.HelloServer",
+    deps = [
+        "//examples/hellogrpc/proto:java",
+        "//examples/hellogrpc/proto:java_compile_imports",
+        "@org_pubref_rules_protobuf//java:netty_runtime_deps",
+    ],
+)
+
+load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
+
+k8s_deploy(
+    name = "staging",
+    images = {
+        "us.gcr.io/not-my-project/hello-grpc:staging": ":server",
+    },
+    template = "//examples/hellogrpc:deployment.json",
+)
