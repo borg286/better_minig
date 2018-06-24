@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: client2
+spec:
+  template:
+    spec:
+      containers:
+      - name: client2
+        image: gcr.io/redis-mrmath-test-1/helloworld/client:dev
+        command: ["./client", "35.225.169.98"]
+      restartPolicy: Never
+  backoffLimit: 1
+
