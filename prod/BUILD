@@ -28,3 +28,8 @@ filegroup(
     name = "container_lib",
     srcs = ["container.libsonnet"],
 )
+
+filegroup(
+    name = "service_lib",
+    srcs = ["service.libsonnet"],
+)

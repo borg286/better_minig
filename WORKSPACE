@@ -32,10 +32,10 @@ git_repository(
     remote = "https://github.com/bazelbuild/rules_k8s.git",
 )
 
-load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories", "k8s_defaults")
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
 
 k8s_repositories()
-
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
 
 # have this match the output from
 # kubectl config current-context
@@ -44,29 +44,17 @@ _PROJECT = "redis-mrmath-test-1"
 _NAMESPACE = "{BUILD_USER}"
 
 k8s_defaults(
-    name = "k8s_object",
-    cluster = _CLUSTER,
-    image_chroot = "gcr.io/" + _PROJECT + "/{BUILD_USER}",
-    namespace = _NAMESPACE,
+  name = "k8s_deploy",
+  kind = "deployment",
+  image_chroot = "us.gcr.io/" + _PROJECT + "/{BUILD_USER}",
+  cluster = _CLUSTER,
 )
 
 k8s_defaults(
-    name = "k8s_deploy",
-    cluster = _CLUSTER,
-    image_chroot = "gcr.io/" + _PROJECT + "/{BUILD_USER}",
-    kind = "deployment",
-    namespace = _NAMESPACE,
+  name = "k8s_service",
+  kind = "service",
+  cluster = _CLUSTER,
 )
-
-[k8s_defaults(
-    name = "k8s_" + kind,
-    cluster = _CLUSTER,
-    kind = kind,
-    namespace = _NAMESPACE,
-) for kind in [
-    "service",
-    "crd",
-]]
 
 new_http_archive(
     name = "mock",
