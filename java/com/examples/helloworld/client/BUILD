@@ -1,22 +1,6 @@
-# Copyright 2017 The Bazel Authors. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 package(default_visibility = ["//visibility:public"])
 
-licenses(["notice"])  # Apache 2.0
-
 load("@io_bazel_rules_docker//java:image.bzl", "java_image")
-
 java_image(
     name = "client",
     srcs = ["HelloClient.java"],
@@ -28,14 +12,23 @@ java_image(
     ],
 )
 
+image = "us.gcr.io/not-my-project/hello-grpc-client:staging"
 
-load("@io_bazel_rules_docker//container:container.bzl", "container_push")
+load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
+jsonnet_to_json(
+    name = "kube-job",
+    src = "job.jsonnet",
+    outs = ["job.json"],
+    multiple_outputs = 1,
+    ext_code_files = ["@kube_jsonnet//:kube_lib"],
+    ext_code_file_vars = ["kube"],
+)
 
-container_push(
-   name = "client_push",
-   image = ":client",
-   format = "Docker",
-   registry = "gcr.io",
-   repository = "redis-mrmath-test-1/helloworld/client",
-   tag = "dev2",
+load("@k8s_job//:defaults.bzl", "k8s_job")
+k8s_job(
+    name = "job",
+    images = {
+        image: ":client",
+    },
+    template = ":job.json",
 )

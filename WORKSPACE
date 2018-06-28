@@ -57,6 +57,12 @@ k8s_defaults(
   kind = "service",
   cluster = _CLUSTER,
 )
+k8s_defaults(
+  name = "k8s_job",
+  kind = "job",
+  image_chroot = "us.gcr.io/" + _PROJECT + "/{BUILD_USER}",
+  cluster = _CLUSTER,
+)
 
 new_http_archive(
     name = "mock",
