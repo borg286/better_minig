@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 workspace(name = "brian")
+
 
 git_repository(
     name = "io_bazel_rules_docker",
@@ -168,6 +170,18 @@ git_repository(
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_repositories")
 
 jsonnet_repositories()
+
+new_http_archive(
+    name = "kube_jsonnet",
+    url = "https://github.com/bitnami-labs/kube-libsonnet/archive/d30a2d7fd5c6686b5a2aeda914533530e26019e0.tar.gz",
+    strip_prefix = "kube-libsonnet-d30a2d7fd5c6686b5a2aeda914533530e26019e0",
+	build_file_content = """
+package(default_visibility = ["//visibility:public"])
+filegroup(
+    name = "kube_lib",
+    srcs = ["kube.libsonnet"],
+)""",
+)
 
 
 git_repository(

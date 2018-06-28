@@ -1,7 +1,5 @@
 package(default_visibility = ["//visibility:public"])
 
-licenses(["notice"])  # Apache 2.0
-
 load("@io_bazel_rules_docker//java:image.bzl", "java_image")
 
 java_image(
@@ -15,43 +13,33 @@ java_image(
     ],
 )
 
+
+load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
+jsonnet_to_json(
+    name = "kube-service",
+    src = "kube-service.jsonnet",
+    outs = ["frontend_deployment.json", "service_deployment.json"],
+    multiple_outputs = 1,
+    ext_code_files = ["@kube_jsonnet//:kube_lib"],
+    ext_code_file_vars = ["kube"],
+)
+
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
+load("@k8s_service//:defaults.bzl", "k8s_service")
+load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 
 k8s_deploy(
     name = "deployment",
     images = {
         "us.gcr.io/not-my-project/hello-grpc:staging": ":server",
     },
-    template = ":deployment_json",
+    template = ":frontend_deployment.json",
 )
-
-load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
-
-jsonnet_to_json(
-    name = "deployment_json",
-    src = "deployment.jsonnet",
-    outs = ["deployment.json"],
-    ext_code_files = ["//prod:container_lib", "//prod:deploy_lib"],
-    ext_code_file_vars = ["container", "deployment"],
-)
-
-load("@k8s_service//:defaults.bzl", "k8s_service")
 
 k8s_service(
     name = "service",
-    template = ":service_json",
+    template = ":service_deployment.json",
 )
-
-jsonnet_to_json(
-    name = "service_json",
-    src = "service.jsonnet",
-    outs = ["service.json"],
-    ext_code_files = ["//prod:service_lib"],
-    ext_code_file_vars = ["service"],
-)
-
-
-load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 
 k8s_objects(
     name = "deployment_service",
