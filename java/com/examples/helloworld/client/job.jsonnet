@@ -1,5 +1,6 @@
 
 local kube = std.extVar("kube");
+local server = std.extVar("server");
 
 {
   "job.json": std.prune(kube.Job("java-client") {
@@ -10,7 +11,7 @@ local kube = std.extVar("kube");
           containers_+: {
             foo_cont: kube.Container("my-container") {
               image: "us.gcr.io/not-my-project/hello-grpc-client:staging",
-              command: ["java", "-jar", "client_deploy.jar", "35.225.169.98"],
+              command: ["java", "-jar", "client_deploy.jar", server.metadata.name + ":" + server.spec.ports[0].port],
             },
           },
         },

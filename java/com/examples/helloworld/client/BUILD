@@ -20,8 +20,8 @@ jsonnet_to_json(
     src = "job.jsonnet",
     outs = ["job.json"],
     multiple_outputs = 1,
-    ext_code_files = ["@kube_jsonnet//:kube_lib"],
-    ext_code_file_vars = ["kube"],
+    ext_code_files = ["@kube_jsonnet//:kube_lib", "//java/com/examples/helloworld/server:service_deployment.json"],
+    ext_code_file_vars = ["kube", "server"],
 )
 
 load("@k8s_job//:defaults.bzl", "k8s_job")

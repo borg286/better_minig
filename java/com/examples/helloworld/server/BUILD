@@ -13,6 +13,8 @@ java_image(
     ],
 )
 
+image = "us.gcr.io/not-my-project/hello-grpc:staging"
+port = "50001"
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 jsonnet_to_json(
@@ -31,7 +33,7 @@ load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 k8s_deploy(
     name = "deployment",
     images = {
-        "us.gcr.io/not-my-project/hello-grpc:staging": ":server",
+        image: ":server",
     },
     template = ":frontend_deployment.json",
 )

@@ -56,6 +56,7 @@ k8s_defaults(
   name = "k8s_service",
   kind = "service",
   cluster = _CLUSTER,
+
 )
 k8s_defaults(
   name = "k8s_job",

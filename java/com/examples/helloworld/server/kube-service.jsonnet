@@ -1,5 +1,10 @@
 
 local kube = std.extVar("kube");
+// local image = std.extVar("image");
+// local port = std.extVar("port");
+
+local image = "us.gcr.io/not-my-project/hello-grpc:staging";
+local port = 50001;
 
 {
   "frontend_deployment.json": kube.Deployment("frontend") {
@@ -9,9 +14,9 @@ local kube = std.extVar("kube");
       template+: {
         spec+: {
           containers_+: {
-            gb_fe: kube.Container("gb-frontend") {
-              image: "gcr.io/google-samples/gb-frontend:v4",
-              ports_+: { grpc: { containerPort: 50001 } },
+            gb_fe: kube.Container("my-container") {
+              image: image,
+              ports_+: { grpc: { containerPort: port } },
   }}}}}},
   
   "service_deployment.json": kube.Service("frontend") {
