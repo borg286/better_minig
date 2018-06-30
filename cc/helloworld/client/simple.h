@@ -12,15 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-{
-   Simple:: function(name, uri, port) {
-                  "name": name,
-                  "image": uri,
-                  "imagePullPolicy": "Always",
-                  "ports": [
-                     {
-                        "containerPort": port
-                     }
-                  ]
-               }
-}
+#ifndef EXAMPLES_BAZEL_GRPC_CC_SIMPLE_H
+#define EXAMPLES_BAZEL_GRPC_CC_SIMPLE_H
+
+#include <memory>
+#include <string>
+#include <grpc++/grpc++.h>
+
+#include "proto/helloworld/simple.pb.h"
+#include "proto/helloworld/simple.grpc.pb.h"
+
+using grpc::Channel;
+using grpc::ClientContext;
+using grpc::Status;
+using proto::FooRequest;
+using proto::FooReply;
+using proto::Simple;
+
+class SimpleClient {
+ public:
+  SimpleClient(std::shared_ptr<Channel> channel);
+
+  std::string Foo(const std::string& user);
+
+ private:
+  std::unique_ptr<Simple::Stub> stub_;
+};
+
+#endif  // EXAMPLES_BAZEL_GRPC_CC_SIMPLE_H

@@ -18,8 +18,8 @@
 
 #include <grpc++/grpc++.h>
 
-#include "examples/hellogrpc/proto/simple.pb.h"
-#include "examples/hellogrpc/proto/simple.grpc.pb.h"
+#include "proto/helloworld/simple.pb.h"
+#include "proto/helloworld/simple.grpc.pb.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
