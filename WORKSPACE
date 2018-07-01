@@ -132,6 +132,35 @@ git_repository(
     remote = "https://github.com/bazelbuild/rules_jsonnet.git",
 )
 
+# pip imports for placing requrements into build targets and also separate docker layers
+load(
+    "@io_bazel_rules_python//python:pip.bzl",
+    "pip_import",
+    "pip_repositories",
+)
+pip_repositories()
+
+
+# Create a requirement() rule capable of layering python dependencies
+# the libraries available to pass to requirement() is separate for each
+# requirement.txt file in the repo
+
+# requirements for general python code
+pip_import(
+    name = "py_pip",
+    requirements = "//py:requirements.txt",
+)
+load(
+    "@py_pip//:requirements.bzl",
+    py_install = "pip_install",
+)
+py_install()
+
+
+
+
+# We use jsonnet to configure the kubernetes deployments, services...
+
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_repositories")
 
 jsonnet_repositories()
