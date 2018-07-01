@@ -18,7 +18,7 @@ java_binary(
 
 load("@io_bazel_rules_docker//java:image.bzl", "java_image")
 java_image(
-    name = "client",
+    name = "client-image",
     main_class = "com.examples.helloworld.client.HelloClient",
     runtime_deps = [":client-lib"],
 )
@@ -31,7 +31,7 @@ jsonnet_to_json(
     src = "job.jsonnet",
     outs = ["job.json"],
     multiple_outputs = 1,
-    ext_code_files = ["@kube_jsonnet//:kube_lib", "//java/com/examples/helloworld/server:service_deployment.json"],
+    ext_code_files = ["@kube_jsonnet//:kube_lib", "//java/com/examples/helloworld/server:service.json"],
     ext_code_file_vars = ["kube", "server"],
 )
 
@@ -39,7 +39,7 @@ load("@k8s_job//:defaults.bzl", "k8s_job")
 k8s_job(
     name = "job",
     images = {
-        image: ":client",
+        image: ":client-image",
     },
     template = ":job.json",
 )

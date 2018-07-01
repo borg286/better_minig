@@ -14,7 +14,7 @@ go_binary(
 )
 
 go_image(
-    name = "client",
+    name = "client-image",
     srcs = ["main.go"],
     importpath = "github.com/bazelbuild/rules_k8s/rules_k8s/examples/hellogrpc/go/client",
     deps = [
@@ -29,7 +29,7 @@ jsonnet_to_json(
     src = "job.jsonnet",
     outs = ["job.json"],
     multiple_outputs = 1,
-    ext_code_files = ["@kube_jsonnet//:kube_lib", "//go/helloworld/server:service_deployment.json"],
+    ext_code_files = ["@kube_jsonnet//:kube_lib", "//go/helloworld/server:service.json"],
     ext_code_file_vars = ["kube", "server"],
 )
 
@@ -37,7 +37,7 @@ load("@k8s_job//:defaults.bzl", "k8s_job")
 k8s_job(
     name = "job",
     images = {
-        image: ":client",
+        image: ":client-image",
     },
     template = ":job.json",
 )

@@ -4,7 +4,7 @@ load("@io_bazel_rules_docker//python:image.bzl", "py_image")
 load("@py_pip//:requirements.bzl", "requirement")
 
 py_image(
-    name = "client",
+    name = "client-image",
     srcs = ["client.py"],
     deps = [
         requirement("grpcio"),
@@ -21,7 +21,7 @@ jsonnet_to_json(
     src = "job.jsonnet",
     outs = ["job.json"],
     multiple_outputs = 1,
-    ext_code_files = ["@kube_jsonnet//:kube_lib", "//py/examples/hellogrpc/server:service_deployment.json"],
+    ext_code_files = ["@kube_jsonnet//:kube_lib", "//py/examples/hellogrpc/server:service.json"],
     ext_code_file_vars = ["kube", "server"],
 )
 
@@ -29,7 +29,7 @@ load("@k8s_job//:defaults.bzl", "k8s_job")
 k8s_job(
     name = "job",
     images = {
-        image: ":client",
+        image: ":client-image",
     },
     template = ":job.json",
 )

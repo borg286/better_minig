@@ -17,7 +17,7 @@ cc_binary(
 
 load("@io_bazel_rules_docker//cc:image.bzl", "cc_image")
 cc_image(
-    name = "client",
+    name = "client-image",
     binary = ":client-binary",
 )
 
@@ -29,7 +29,7 @@ jsonnet_to_json(
     src = "job.jsonnet",
     outs = ["job.json"],
     multiple_outputs = 1,
-    ext_code_files = ["@kube_jsonnet//:kube_lib", "//cc/helloworld/server:service_deployment.json"],
+    ext_code_files = ["@kube_jsonnet//:kube_lib", "//cc/helloworld/server:service.json"],
     ext_code_file_vars = ["kube", "server"],
 )
 
@@ -37,7 +37,7 @@ load("@k8s_job//:defaults.bzl", "k8s_job")
 k8s_job(
     name = "job",
     images = {
-        image: ":client",
+        image: ":client-image",
     },
     template = ":job.json",
 )

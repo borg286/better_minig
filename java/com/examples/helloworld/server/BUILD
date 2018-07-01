@@ -18,7 +18,7 @@ java_binary(
 )
 
 java_image(
-    name = "server",
+    name = "server-image",
     main_class = "com.examples.helloworld.server.HelloServer",
     runtime_deps = [":server-lib"],
 )
@@ -29,8 +29,8 @@ port = "50001"
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 jsonnet_to_json(
     name = "kube-service",
-    src = "kube-service.jsonnet",
-    outs = ["frontend_deployment.json", "service_deployment.json"],
+    src = "server.jsonnet",
+    outs = ["server.json", "service.json"],
     multiple_outputs = 1,
     ext_code_files = ["@kube_jsonnet//:kube_lib"],
     ext_code_file_vars = ["kube"],
@@ -45,16 +45,16 @@ k8s_deploy(
     images = {
         image: ":server",
     },
-    template = ":frontend_deployment.json",
+    template = ":server.json",
 )
 
 k8s_service(
     name = "service",
-    template = ":service_deployment.json",
+    template = ":service.json",
 )
 
 k8s_objects(
-    name = "deployment_service",
+    name = "server",
     objects = [
         ":deployment",
         ":service",
