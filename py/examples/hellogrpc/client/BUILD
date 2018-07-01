@@ -1,27 +1,36 @@
-# Copyright 2017 The Bazel Authors. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 package(default_visibility = ["//visibility:public"])
 
-licenses(["notice"])  # Apache 2.0
-
+load("@io_bazel_rules_docker//python:image.bzl", "py_image")
 load("@py_pip//:requirements.bzl", "requirement")
 
-py_binary(
+py_image(
     name = "client",
     srcs = ["client.py"],
     deps = [
         requirement("grpcio"),
         "//examples/hellogrpc/proto:py",
     ],
+    main = "client.py",
 )
+
+image = "us.gcr.io/not-my-project/hello-grpc-py-client:staging"
+
+load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
+jsonnet_to_json(
+    name = "kube-job",
+    src = "job.jsonnet",
+    outs = ["job.json"],
+    multiple_outputs = 1,
+    ext_code_files = ["@kube_jsonnet//:kube_lib", "//py/examples/hellogrpc/server:service_deployment.json"],
+    ext_code_file_vars = ["kube", "server"],
+)
+
+load("@k8s_job//:defaults.bzl", "k8s_job")
+k8s_job(
+    name = "job",
+    images = {
+        image: ":client",
+    },
+    template = ":job.json",
+)
+
