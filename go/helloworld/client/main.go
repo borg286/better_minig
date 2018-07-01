@@ -14,6 +14,7 @@
 package main
 
 import (
+	"flag"
 	"context"
 	"fmt"
 	"log"
@@ -23,7 +24,10 @@ import (
 	"google.golang.org/grpc"
 )
 
+var port = flag.String("grpc_server", "50051", "port to send requests to")
+
 func main() {
+	flag.Parse()
 	ctx := context.Background()
 
 	if len(os.Args) != 2 {
@@ -32,7 +36,7 @@ func main() {
 
 	addr := os.Args[1]
 
-	conn, err := grpc.Dial(fmt.Sprintf("%s:50051", addr), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", addr, port), grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Dial: %v", err)
 	}
