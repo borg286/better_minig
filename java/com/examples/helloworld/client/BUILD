@@ -23,7 +23,7 @@ java_image(
     runtime_deps = [":client-lib"],
 )
 
-image = "us.gcr.io/not-my-project/hello-grpc-client:staging"
+image = "us.gcr.io/not-my-project/hello-grpc-java-client:staging"
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 jsonnet_to_json(

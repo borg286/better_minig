@@ -7,19 +7,19 @@ local image = "us.gcr.io/not-my-project/hello-grpc-cc:staging";
 local port = 50001;
 
 {
-  "server.json": kube.Deployment("frontend") {
+  "server.json": kube.Deployment("cc-depl") {
     spec+: {
       local my_spec = self,
       replicas: 1,
       template+: {
         spec+: {
           containers_+: {
-            gb_fe: kube.Container("my-container") {
+            gb_fe: kube.Container("server") {
               image: image,
               ports_+: { grpc: { containerPort: port } },
   }}}}}},
   
-  "service.json": kube.Service("frontend") {
-    target_pod: $["frontend_deployment.json"].spec.template,
+  "service.json": kube.Service("grpc-cc") {
+    target_pod: $["server.json"].spec.template,
   }
 }

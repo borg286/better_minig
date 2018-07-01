@@ -3,7 +3,7 @@ local kube = std.extVar("kube");
 local server = std.extVar("server");
 
 {
-  "job.json": std.prune(kube.Job("java-client") {
+  "job.json": std.prune(kube.Job("go-client") {
     spec+: {
     selector: null,
       template+: {
