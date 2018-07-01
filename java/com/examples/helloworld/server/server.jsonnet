@@ -3,7 +3,7 @@ local kube = std.extVar("kube");
 // local image = std.extVar("image");
 // local port = std.extVar("port");
 
-local image = "us.gcr.io/not-my-project/hello-grpc:staging";
+local image = "us.gcr.io/not-my-project/hello-grpc-java:staging";
 local port = 50001;
 
 {
