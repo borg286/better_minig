@@ -1,19 +1,4 @@
-# Copyright 2017 The Bazel Authors. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 workspace(name = "brian")
-
 
 git_repository(
     name = "io_bazel_rules_docker",
@@ -36,34 +21,6 @@ git_repository(
 
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
 
-k8s_repositories()
-load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
-
-# have this match the output from
-# kubectl config current-context
-_CLUSTER = "gke_redis-mrmath-test-1_us-central1-a_cluster-1"
-_PROJECT = "redis-mrmath-test-1"
-_NAMESPACE = "{BUILD_USER}"
-
-k8s_defaults(
-  name = "k8s_deploy",
-  kind = "deployment",
-  image_chroot = "us.gcr.io/" + _PROJECT + "/{BUILD_USER}",
-  cluster = _CLUSTER,
-)
-
-k8s_defaults(
-  name = "k8s_service",
-  kind = "service",
-  cluster = _CLUSTER,
-
-)
-k8s_defaults(
-  name = "k8s_job",
-  kind = "job",
-  image_chroot = "us.gcr.io/" + _PROJECT + "/{BUILD_USER}",
-  cluster = _CLUSTER,
-)
 
 new_http_archive(
     name = "mock",
@@ -92,7 +49,7 @@ py_library(
 
 git_repository(
     name = "org_pubref_rules_protobuf",
-    commit = "4cc90ab2b9f4d829b9706221d4167bc7fb3bd247",  # patched v0.8.1 (Sep 27 2017)
+    tag = "v0.8.2",
     remote = "https://github.com/pubref/rules_protobuf.git",
 )
 
@@ -126,16 +83,17 @@ _java_image_repos()
 
 git_repository(
     name = "io_bazel_rules_go",
-    commit = "ae70411645c171b2056d38a6a959e491949f9afe",
+    tag = "0.12.1",
     remote = "https://github.com/bazelbuild/rules_go.git",
 )
 
 load(
     "@io_bazel_rules_go//go:def.bzl",
-    "go_repositories",
+    "go_rules_dependencies", "go_register_toolchains",
 )
 
-go_repositories()
+go_rules_dependencies()
+go_register_toolchains()
 
 # We use go_image to build a sample service
 load(
@@ -214,3 +172,180 @@ npm_install(
     name = "examples_hellohttp_npm",
     package_json = "//examples/hellohttp/nodejs:package.json",
 )
+
+# ================================================================
+# Imports for maven jars
+# ================================================================
+
+# Imported from Redisson dependencies
+maven_jar(
+    name = "org_redisson_redisson",
+    artifact = "org.redisson:redisson:3.7.3",
+)
+maven_jar(
+    name = "junit_junit",
+    artifact = "junit:junit:4.12",
+)
+
+maven_jar(
+    name = "io_netty_netty_transport_native_kqueue",
+    artifact = "io.netty:netty-transport-native-kqueue:4.1.25.Final",
+)
+
+maven_jar(
+    name = "io_netty_netty_transport_native_epoll",
+    artifact = "io.netty:netty-transport-native-epoll:4.1.25.Final",
+)
+maven_jar(
+    name = "io_netty_netty_resolver_dns",
+    artifact = "io.netty:netty-resolver-dns:4.1.25.Final",
+)
+maven_jar(
+    name = "io_netty_netty_codec_dns",
+    artifact = "io.netty:netty-codec-dns:4.1.25.Final",
+)
+maven_jar(
+    name = "javax_cache_cache_api",
+    artifact = "javax.cache:cache-api:1.0.0",
+)
+maven_jar(
+    name = "io_projectreactor_reactor_stream",
+    artifact = "io.projectreactor:reactor-stream:2.0.8.RELEASE",
+)
+maven_jar(
+    name = "net_jpountz_lz4_lz4",
+    artifact = "net.jpountz.lz4:lz4:1.3.0",
+)
+maven_jar(
+    name = "org_msgpack_jackson_dataformat_msgpack",
+    artifact = "org.msgpack:jackson-dataformat-msgpack:0.8.16",
+)
+maven_jar(
+    name = "de_ruedigermoeller_fst",
+    artifact = "de.ruedigermoeller:fst:2.54",
+)
+maven_jar(
+    name = "com_esotericsoftware_kryo",
+    artifact = "com.esotericsoftware:kryo:4.0.1",
+)
+maven_jar(
+    name = "org_slf4j_slf4j_api",
+    artifact = "org.slf4j:slf4j-api:1.7.25",
+)
+maven_jar(
+    name = "com_fasterxml_jackson_dataformat_jackson_dataformat_yaml",
+    artifact = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.7.9",
+)
+maven_jar(
+    name = "com_fasterxml_jackson_core_jackson_core",
+    artifact = "com.fasterxml.jackson.core:jackson-core:2.9.5",
+)
+maven_jar(
+    name = "com_fasterxml_jackson_core_jackson_annotations",
+    artifact = "com.fasterxml.jackson.core:jackson-annotations:2.9.5",
+)
+maven_jar(
+    name = "com_fasterxml_jackson_core_jackson_databind",
+    artifact = "com.fasterxml.jackson.core:jackson-databind:2.9.5",
+)
+maven_jar(
+    name = "com_fasterxml_jackson_dataformat_jackson_dataformat_ion",
+    artifact = "com.fasterxml.jackson.dataformat:jackson-dataformat-ion:2.9.5",
+)
+maven_jar(
+    name = "com_fasterxml_jackson_dataformat_jackson_dataformat_cbor",
+    artifact = "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.9.5",
+)
+maven_jar(
+    name = "com_fasterxml_jackson_dataformat_jackson_dataformat_smile",
+    artifact = "com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.9.5",
+)
+maven_jar(
+    name = "com_fasterxml_jackson_dataformat_jackson_dataformat_avro",
+    artifact = "com.fasterxml.jackson.dataformat:jackson-dataformat-avro:2.9.5",
+)
+maven_jar(
+    name = "net_bytebuddy_byte_buddy",
+    artifact = "net.bytebuddy:byte-buddy:1.8.11",
+)
+maven_jar(
+    name = "org_jodd_jodd_bean",
+    artifact = "org.jodd:jodd-bean:3.7.1",
+)
+maven_jar(
+    name = "org_springframework_spring_context",
+    artifact = "org.springframework:spring-context:5.0.7.RELEASE",
+)
+maven_jar(
+    name = "org_springframework_spring_context_support",
+    artifact = "org.springframework:spring-context-support:5.0.7.RELEASE",
+)
+maven_jar(
+    name = "org_springframework_spring_tx",
+    artifact = "org.springframework:spring-tx:5.0.7.RELEASE",
+)
+maven_jar(
+    name = "org_springframework_session_spring_session",
+    artifact = "org.springframework.session:spring-session:1.2.2.RELEASE",
+)
+maven_jar(
+    name = "org_springframework_boot_spring_boot_actuator",
+    artifact = "org.springframework.boot:spring-boot-actuator:2.0.3.RELEASE",
+)
+
+# Apache Commons
+
+maven_jar(
+  name = "org_apache_commons_commons_lang3",
+  artifact = "org.apache.commons:commons-lang3:3.7",
+)
+
+
+# ================================================================
+# Imports for go repos on github
+# ================================================================
+
+
+
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+gazelle_dependencies()
+load("@bazel_gazelle//:deps.bzl", "go_repository")
+
+go_repository(
+    name = "gomodule_redigo",
+    commit = "2cd21d9966bf7ff9ae091419744f0b3fb0fecace",
+    importpath = "github.com/gomodule/redigo",
+)
+
+
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
+
+k8s_repositories()
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
+
+# have this match the output from
+# kubectl config current-context
+_CLUSTER = "gke_redis-mrmath-test-1_us-central1-a_cluster-1"
+_PROJECT = "redis-mrmath-test-1"
+_NAMESPACE = "{BUILD_USER}"
+
+k8s_defaults(
+  name = "k8s_deploy",
+  kind = "deployment",
+  image_chroot = "us.gcr.io/" + _PROJECT + "/{BUILD_USER}",
+  cluster = _CLUSTER,
+)
+
+k8s_defaults(
+  name = "k8s_service",
+  kind = "service",
+  cluster = _CLUSTER,
+
+)
+k8s_defaults(
+  name = "k8s_job",
+  kind = "job",
+  image_chroot = "us.gcr.io/" + _PROJECT + "/{BUILD_USER}",
+  cluster = _CLUSTER,
+)
+
