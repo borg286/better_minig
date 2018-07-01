@@ -1,14 +1,24 @@
 package(default_visibility = ["//visibility:public"])
 
+load("@io_bazel_rules_go//go:def.bzl", "go_binary")
 load("@io_bazel_rules_docker//go:image.bzl", "go_image")
 load("@org_pubref_rules_protobuf//go:rules.bzl", "GRPC_COMPILE_DEPS")
+
+go_binary(
+    name = "client-binary",
+    srcs = ["main.go"],
+    importpath = "github.com/bazelbuild/rules_k8s/rules_k8s/examples/hellogrpc/go/client",
+    deps = [
+        "//proto/helloworld:go",
+    ] + GRPC_COMPILE_DEPS,
+)
 
 go_image(
     name = "client",
     srcs = ["main.go"],
     importpath = "github.com/bazelbuild/rules_k8s/rules_k8s/examples/hellogrpc/go/client",
     deps = [
-        "//examples/hellogrpc/proto:go",
+        "//proto/helloworld:go",
     ] + GRPC_COMPILE_DEPS,
 )
 image = "us.gcr.io/not-my-project/hello-grpc-go-client:staging"

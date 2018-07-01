@@ -72,8 +72,8 @@ public class HelloServer {
     }
 
     /** Main launches the server from the command line. */
-    public static void main(String[] args) throws IOException, InterruptedException {
-	final HelloServer server = new HelloServer();
+    public static void main(String[] args) throws Exception {
+	final HelloServer server = new HelloServer(Integer.parseInt(args[0]));
 	server.start();
 	server.blockUntilShutdown();
     }

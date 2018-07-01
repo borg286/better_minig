@@ -63,10 +63,10 @@ public class HelloClient {
 
     /** Talk to the Simple service */
     public static void main(String[] args) throws Exception {
-	if (args.length != 1) {
+	if (args.length != 2) {
 	    throw new Exception("Expected single IP address argument.");
 	}
-	HelloClient client = new HelloClient(args[0], 50051);
+	HelloClient client = new HelloClient(args[0], Integer.parseInt(args[1]));
 	try {
 	    client.foo("world");
 	} finally {

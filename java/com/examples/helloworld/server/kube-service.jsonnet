@@ -16,6 +16,7 @@ local port = 50001;
           containers_+: {
             gb_fe: kube.Container("my-container") {
               image: image,
+              args: [std.toString(port)],
               ports_+: { grpc: { containerPort: port } },
   }}}}}},
   
