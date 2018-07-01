@@ -21,7 +21,7 @@ from examples.hellogrpc.proto import simple_pb2_grpc
 
 
 def run():
-    channel = grpc.insecure_channel(sys.argv[1] + ':50051')
+    channel = grpc.insecure_channel(sys.argv[1] + ':' + sys.argv[2])
     stub = simple_pb2_grpc.SimpleStub(channel)
     response = stub.Foo(simple_pb2.FooRequest(name='world'))
     print("Foo(world): " + response.message)

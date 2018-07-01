@@ -16,12 +16,13 @@
 #include "cc/helloworld/client/simple.h"
 
 int main(int argc, char** argv) {
-  if (argc != 2) {
+  if (argc != 3) {
     std::cerr << "Expected single IP address argument." << std::endl;
     return 1;
   }
   std::string address(argv[1]);
-  address.append(":50051");
+  address.append(":");
+  address.append(argv[2]);
 
   // Instantiate the client. It requires a channel, out of which the
   // actual RPCs are created. This channel models a connection to an

@@ -17,10 +17,15 @@ licenses(["notice"])  # Apache 2.0
 
 load("@io_bazel_rules_docker//cc:image.bzl", "cc_image")
 
-cc_image(
-    name = "server",
+cc_binary(
+    name = "server-binary",
     srcs = ["main.cc"],
     deps = ["//proto/helloworld:cc"],
+)
+
+cc_image(
+    name = "server",
+    binary = ":server-binary",
 )
 
 image = "us.gcr.io/not-my-project/hello-grpc-cc:staging"

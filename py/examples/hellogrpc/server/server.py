@@ -15,10 +15,11 @@
 
 import grpc
 import time
+import sys
 
 from concurrent import futures
-from examples.hellogrpc.proto import simple_pb2
-from examples.hellogrpc.proto import simple_pb2_grpc
+from proto.helloworld import simple_pb2
+from proto.helloworld import simple_pb2_grpc
 
 
 class _SimpleService(simple_pb2_grpc.SimpleServicer):
@@ -51,7 +52,8 @@ class _HelloServer(object):
 
 
 def main():
-    hello_server = _HelloServer(_SimpleService(), 50051)
+    print "Starting server"
+    hello_server = _HelloServer(_SimpleService(), sys.argv[1])
     hello_server.start()
     hello_server.await_termination()
 

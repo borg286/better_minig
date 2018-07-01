@@ -9,11 +9,16 @@ cc_library(
     deps = ["//proto/helloworld:cc"],
 )
 
+cc_binary(
+    name = "client-binary",
+    srcs = ["main.cc"],
+    deps = [":simple_lib"],
+)
+
 load("@io_bazel_rules_docker//cc:image.bzl", "cc_image")
 cc_image(
     name = "client",
-    srcs = ["main.cc"],
-    deps = [":simple_lib"],
+    binary = ":client-binary",
 )
 
 image = "us.gcr.io/not-my-project/hello-grpc-cc-client:staging"
