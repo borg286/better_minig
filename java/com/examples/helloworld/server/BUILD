@@ -10,17 +10,17 @@ java_library(
     ],
 )
 
-load("@io_bazel_rules_docker//java:image.bzl", "java_image")
 java_binary(
     name = "server-binary",
     main_class = "com.examples.helloworld.server.HelloServer",
     runtime_deps = [":server-lib"],
 )
 
+load("@io_bazel_rules_docker//java:image.bzl", "java_image")
 java_image(
     name = "server-image",
     main_class = "com.examples.helloworld.server.HelloServer",
-    runtime_deps = [":server-lib"],
+    layers = [":server-lib"],
 )
 
 image = "us.gcr.io/not-my-project/hello-grpc-java:staging"
@@ -43,7 +43,7 @@ load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 k8s_deploy(
     name = "deployment",
     images = {
-        image: ":server",
+        image: ":server-image",
     },
     template = ":server.json",
 )

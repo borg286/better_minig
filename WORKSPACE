@@ -2,7 +2,8 @@ workspace(name = "brian")
 
 git_repository(
     name = "io_bazel_rules_docker",
-    commit = "27c94dec66c3c9fdb478c33994471c5bfc15b6eb",
+#    commit = "27c94dec66c3c9fdb478c33994471c5bfc15b6eb",
+    tag = "v0.4.0",
     remote = "https://github.com/bazelbuild/rules_docker.git",
 )
 
