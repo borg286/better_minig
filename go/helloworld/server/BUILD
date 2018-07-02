@@ -34,7 +34,7 @@ k8s_deploy(
     images = {
         image: ":server-image",
     },
-    template = ":frontend.json",
+    template = ":server.json",
 )
 
 k8s_service(
