@@ -2,7 +2,7 @@
 local kube = std.extVar("kube");
 local server = std.extVar("server");
 
-local image = "us.gcr.io/not-my-project/hello-grpc-java-client:staging"
+local image = "us.gcr.io/not-my-project/hello-grpc-java-client:staging";
 {
   "job.json": std.prune(kube.Job("java-client") {
     spec+: {

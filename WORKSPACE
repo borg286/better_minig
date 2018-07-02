@@ -1,9 +1,36 @@
 workspace(name = "brian")
 
+# ================================================================
+# Imports for examples/
+# ================================================================
+
+git_repository(
+    name = "org_pubref_rules_protobuf",
+    tag = "v0.8.2",
+    remote = "https://github.com/pubref/rules_protobuf.git",
+)
+
+load("@org_pubref_rules_protobuf//protobuf:rules.bzl", "proto_repositories")
+
+proto_repositories()
+
+load("@org_pubref_rules_protobuf//cpp:rules.bzl", "cpp_proto_repositories")
+
+cpp_proto_repositories()
+
+load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_repositories")
+
+java_proto_repositories()
+
+
+
+
+
+
 git_repository(
     name = "io_bazel_rules_docker",
-#    commit = "27c94dec66c3c9fdb478c33994471c5bfc15b6eb",
-    tag = "v0.4.0",
+    commit = "27c94dec66c3c9fdb478c33994471c5bfc15b6eb",
+#    tag = "v0.4.0",
     remote = "https://github.com/bazelbuild/rules_docker.git",
 )
 
@@ -43,28 +70,6 @@ py_library(
     type = "tar.gz",
     url = "https://pypi.python.org/packages/source/m/mock/mock-1.0.1.tar.gz",
 )
-
-# ================================================================
-# Imports for examples/
-# ================================================================
-
-git_repository(
-    name = "org_pubref_rules_protobuf",
-    tag = "v0.8.2",
-    remote = "https://github.com/pubref/rules_protobuf.git",
-)
-
-load("@org_pubref_rules_protobuf//protobuf:rules.bzl", "proto_repositories")
-
-proto_repositories()
-
-load("@org_pubref_rules_protobuf//cpp:rules.bzl", "cpp_proto_repositories")
-
-cpp_proto_repositories()
-
-load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_repositories")
-
-java_proto_repositories()
 
 # We use cc_image to build a sample service
 load(

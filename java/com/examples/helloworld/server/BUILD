@@ -1,7 +1,8 @@
 package(default_visibility = ["//visibility:public"])
 
-java_library(
-    name = "server-lib",
+java_binary(
+    name = "server-binary",
+    main_class = "com.examples.helloworld.server.HelloServer",
     srcs = ["HelloServer.java"],
     deps = [
         "//proto/helloworld:java",
@@ -10,17 +11,16 @@ java_library(
     ],
 )
 
-java_binary(
-    name = "server-binary",
-    main_class = "com.examples.helloworld.server.HelloServer",
-    runtime_deps = [":server-lib"],
-)
-
 load("@io_bazel_rules_docker//java:image.bzl", "java_image")
 java_image(
     name = "server-image",
     main_class = "com.examples.helloworld.server.HelloServer",
-    layers = [":server-lib"],
+    srcs = ["HelloServer.java"],
+    deps = [
+        "//proto/helloworld:java",
+        "//proto/helloworld:java_compile_imports",
+        "@org_pubref_rules_protobuf//java:netty_runtime_deps",
+    ],
 )
 
 image = "us.gcr.io/not-my-project/hello-grpc-java:staging"
