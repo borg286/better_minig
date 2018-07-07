@@ -23,7 +23,7 @@ java_image(
     ],
 )
 
-load("//rules:envs.bzl","PROD", "STAGING", "DEV", "LOCAL", "ALL")
+load("//rules:envs.bzl","PROD", "STAGING", "DEV", "LOCAL", "makeDeepShallowTargets")
 
 # Both the kubernetes json as well as the k8s_deploy need to know the image.
 # This section fixes the docker image tags for each environment as the soure of truth.
@@ -50,24 +50,7 @@ jsonnet_to_json(
     ext_code_file_vars = ["kube"],
 )
 
-load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
-load("@k8s_service//:defaults.bzl", "k8s_service")
-load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
-
-k8s_service(
-    name = "service",
-    template = ":service.json",
+makeDeepShallowTargets(
+    image_url = images[LOCAL]
 )
-
-[k8s_deploy(
-    name = "%s-deployment"%env,
-    # Only tell k8s_deploy to look for and push the docker image for a local run
-    images = {} if env != LOCAL else {images[LOCAL]: ":server-image"},
-    template = ":%s-server.json"%env,) for env in ALL]
-
-[k8s_objects(
-    name = "%s-server"%env,
-    objects = [
-        ":%s-deployment"%env,
-        ":service",
-    ],) for env in ALL]
+  

@@ -378,10 +378,8 @@ k8s_defaults(
 )
 
 k8s_defaults(
-  name = "k8s_service",
-  kind = "service",
+  name = "k8s_object",
   cluster = _CLUSTER,
-
 )
 k8s_defaults(
   name = "k8s_job",
