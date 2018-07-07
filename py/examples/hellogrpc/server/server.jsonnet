@@ -1,13 +1,9 @@
 
 local kube = std.extVar("kube");
-// local image = std.extVar("image");
-// local port = std.extVar("port");
+local port = std.extVar("port");
+local images = std.extVar("images");
 
-local image = "us.gcr.io/not-my-project/hello-grpc-py:staging";
-local port = 50001;
-
-{
-  "server.json": kube.Deployment("py-depl") {
+local template = kube.Deployment("py-depl") {
     spec+: {
       local my_spec = self,
       replicas: 1,
@@ -15,12 +11,48 @@ local port = 50001;
         spec+: {
           containers_+: {
             gb_fe: kube.Container("server") {
-              image: image,
               args: [std.toString(port)],
               ports_+: { grpc: { containerPort: port } },
+}}}}}};
+
+
+{
+  "prod-server.json": template { 
+    spec+: {
+      template+: {
+        spec+: {
+          containers_+: {
+            gb_fe+: {
+              image: images["prod"],
   }}}}}},
+  "staging-server.json": $["prod-server.json"] {
+    spec+: {
+      template+: {
+        spec+: {
+          containers_+: {
+            gb_fe+: {
+              image: images["staging"],
+  }}}}}},
+
+  "dev-server.json": $["staging-server.json"] { 
+    spec+: {
+      template+: {
+        spec+: {
+          containers_+: {
+            gb_fe+: {
+              image: images["dev"],
+  }}}}}},
+  "local-server.json": $["dev-server.json"] { 
+    spec+: {
+      template+: {
+        spec+: {
+          containers_+: {
+            gb_fe+: {
+              image: images["local"],
+  }}}}}},
+
   
-  "service.json": kube.Service("grpd-py") {
-    target_pod: $["server.json"].spec.template,
+  "service.json": kube.Service("grpc-py") {
+    target_pod: $["prod-server.json"].spec.template,
   }
 }
