@@ -8,7 +8,7 @@ py_image(
     srcs = ["client.py"],
     deps = [
         requirement("grpcio"),
-        "//examples/hellogrpc/proto:py",
+        "//proto/helloworld:py",
     ],
     main = "client.py",
 )
