@@ -11,6 +11,7 @@ local template = kube.Deployment("java-depl") {
         spec+: {
           containers_+: {
             gb_fe: kube.Container("server") {
+              resources: {},
               args: [std.toString(port)],
               ports_+: { grpc: { containerPort: port } },
 }}}}}};

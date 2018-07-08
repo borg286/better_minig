@@ -37,7 +37,7 @@ def makeDeepShallowTargets(name_prefix="server", image_url="", image_target=":se
     name = "local-deployment",
     # Only tell k8s_deploy to look for and push the docker image for a local run
     images = {image_url: image_target},
-    template = prod_json,)
+    template = local_json,)
 
 
 
