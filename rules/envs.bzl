@@ -9,7 +9,7 @@ load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 load("@k8s_object//:defaults.bzl", "k8s_object")
 
 
-def makeDeepShallowTargets(image_url="", image_target=":server-image", deps_templates=[], prod_json=":prod-server.json", staging_json=":staging-server.json", dev_json=":dev-server.json", local_json=":local-server.json", env_independent_jsons={"myservice":("service",":service.json")}):
+def makeDeepShallowTargets(name_prefix="server", image_url="", image_target=":server-image", deps_templates=[], prod_json=":prod-server.json", staging_json=":staging-server.json", dev_json=":dev-server.json", local_json=":local-server.json", env_independent_jsons={"myservice":("service",":service.json")}):
 
   # deps_template = [
     # "//some/runtime/service/dependency"
@@ -51,7 +51,7 @@ def makeDeepShallowTargets(image_url="", image_target=":server-image", deps_temp
   # Note that the LOCAL environment depends on the :server-image as well as all dependencies.
   # Thus by creating/updating a LOCAL group you effectivly run everything at head.
   [[k8s_objects(
-    name = "%s-server-%s"%(env,depth),
+    name = "%s-%s-%s"%(name_prefix, env,depth),
     objects = [
         ":%s-deployment"%env,
     ] + [
@@ -60,6 +60,6 @@ def makeDeepShallowTargets(image_url="", image_target=":server-image", deps_temp
     ] + [] if depth != DEEP else [
         # use the dependency template strings above to construct a build target
         # that mirrors the environment and fetches the deep group.
-        dep + ":%s-server-%s"%(env,DEEP) for dep in deps_templates],
+        dep + "-%s-%s"%(env,DEEP) for dep in deps_templates],
     ) for env in ALL] for depth in (SHALLOW, DEEP)]
 

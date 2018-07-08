@@ -56,6 +56,7 @@ jsonnet_to_json(
 )
 
 makeDeepShallowTargets(
+    name_prefix = "server",
     image_url = images[LOCAL]
 )
 

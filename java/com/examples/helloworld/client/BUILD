@@ -45,9 +45,10 @@ jsonnet_to_json(
 )
 
 makeDeepShallowTargets(
+    name_prefix = "job",
     image_url = images[LOCAL],
     image_target = ":client-image",
-    deps_templates = ["//java/com/examples/helloworld/server"],
+    deps_templates = ["//java/com/examples/helloworld/server:server"],
     prod_json = ":prod-job.json",
     staging_json = ":staging-job.json",
     dev_json = ":dev-job.json",
