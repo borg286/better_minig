@@ -11,7 +11,8 @@ local template = std.prune(kube.Job("java-client") {
         containers_+: {
           foo_cont: kube.Container("client") {
             image: "will be replaced",
-            command: ["java", "-jar", "client_deploy.jar", server.metadata.name + ":" + server.spec.ports[0].port],
+//              command: ["java", "-version"],
+            args: [server.metadata.name,  std.toString(server.spec.ports[0].port)],
           },
         },
       },
@@ -22,35 +23,16 @@ local template = std.prune(kube.Job("java-client") {
 
 {
   "prod-job.json": template {
-    spec+: {
-      template+: {
-        spec+: {
-          containers_+: {
-            foo_cont+: {
-              image: images["prod"],
-  }}}}}},
-  "staging-job.json": template {                    
-    spec+: {
-      template+: {
-        spec+: {
-          containers_+: {
-            foo_cont+: {
-              image: images["staging"],
-  }}}}}},
-  "dev-job.json": template {                    
-    spec+: {
-      template+: {
-        spec+: {
-          containers_+: {
-            foo_cont+:{
-              image: images["dev"],
-  }}}}}},
-  "local-job.json": template {                    
-    spec+: {
-      template+: {
-        spec+: {
-          containers_+: {
-            foo_cont+: {
-              image: images["local"],
-  }}}}}},
+    spec+:{template+:{spec+:{containers:[super.containers[0]{image: images["prod"]}]}}}
+  },
+  "staging-job.json": template {
+    spec+:{template+:{spec+:{containers:[super.containers[0]{image: images["staging"]}]}}}
+  },
+  "dev-job.json": template {
+    spec+:{template+:{spec+:{containers:[super.containers[0]{image: images["dev"]}]}}}
+  },
+  "local-job.json": template {
+    spec+:{template+:{spec+:{containers:[super.containers[0]{image: images["local"]}]}}}
+  },
+
 }

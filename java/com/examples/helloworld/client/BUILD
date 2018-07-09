@@ -1,26 +1,15 @@
 package(default_visibility = ["//visibility:public"])
 
-java_library(
-    name = "client-lib",
+load("@io_bazel_rules_docker//java:image.bzl", "java_image")
+java_image(
+    name = "client-image",
+    main_class = "com.examples.helloworld.client.HelloClient",
     srcs = ["HelloClient.java"],
     deps = [
         "//proto/helloworld:java",
         "//proto/helloworld:java_compile_imports",
         "@org_pubref_rules_protobuf//java:netty_runtime_deps",
     ],
-)
-
-java_binary(
-    name = "client-binary",
-    main_class = "com.examples.helloworld.client.HelloClient",
-    runtime_deps = [":client-lib"],
-)
-
-load("@io_bazel_rules_docker//java:image.bzl", "java_image")
-java_image(
-    name = "client-image",
-    main_class = "com.examples.helloworld.client.HelloClient",
-    runtime_deps = [":client-lib"],
 )
 load("//rules:envs.bzl","PROD", "STAGING", "DEV", "LOCAL", "makeDeepShallowTargets")
 
@@ -29,7 +18,7 @@ images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "us.gcr.io/my-developer-project/hello-grpc-java-client"
+    LOCAL: "us.gcr.io/my-developer-project/hello-grpc-java-client:some-tag"
 }
 
 
