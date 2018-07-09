@@ -81,6 +81,7 @@ public class HelloServer {
     private class SimpleImpl extends SimpleGrpc.SimpleImplBase {
 	@Override
 	public void foo(FooRequest req, StreamObserver<FooReply> responseObserver) {
+            System.out.println("I got a message");
 	    FooReply reply = FooReply.newBuilder().setMessage("DEMO " + req.getName()).build();
 	    responseObserver.onNext(reply);
 	    responseObserver.onCompleted();

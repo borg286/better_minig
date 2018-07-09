@@ -13,12 +13,12 @@ java_image(
 )
 load("//rules:envs.bzl","PROD", "STAGING", "DEV", "LOCAL", "makeDeepShallowTargets")
 
-image_base = "us.gcr.io/not-my-project/hello-grpc-java-client:"
+image_base = "localhost:5000/not-my-project/hello-grpc-java-client:"
 images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "us.gcr.io/my-developer-project/hello-grpc-java-client:some-tag"
+    LOCAL: "localhost:5000/my-developer-project/hello-grpc-java-client:some-tag"
 }
 
 
@@ -35,6 +35,7 @@ jsonnet_to_json(
 
 makeDeepShallowTargets(
     name_prefix = "job",
+    kind = "job",
     image_url = images[LOCAL],
     image_target = ":client-image",
     deps_templates = ["//java/com/examples/helloworld/server:server"],

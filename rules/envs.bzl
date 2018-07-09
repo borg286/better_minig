@@ -9,7 +9,7 @@ load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 load("@k8s_object//:defaults.bzl", "k8s_object")
 
 
-def makeDeepShallowTargets(name_prefix="server", image_url="", image_target=":server-image", deps_templates=[], prod_json=":prod-server.json", staging_json=":staging-server.json", dev_json=":dev-server.json", local_json=":local-server.json", env_independent_jsons={"myservice":("service",":service.json")}):
+def makeDeepShallowTargets(name_prefix="server", image_url="", image_target=":server-image", deps_templates=[], kind="deployment", prod_json=":prod-server.json", staging_json=":staging-server.json", dev_json=":dev-server.json", local_json=":local-server.json", env_independent_jsons={"myservice":("service",":service.json")}):
 
   # deps_template = [
     # "//some/runtime/service/dependency"
@@ -24,17 +24,21 @@ def makeDeepShallowTargets(name_prefix="server", image_url="", image_target=":se
     template = kind_json[1],
   ) for name, kind_json in env_independent_jsons.items()]
 
-  k8s_deploy(
-    name = "prod-deployment",
+  k8s_object(
+    name = "prod-%s"%kind,
+    kind = kind,
     template = prod_json,)
-  k8s_deploy(
-    name = "staging-deployment",
+  k8s_object(
+    name = "staging-%s"%kind,
+    kind = kind,
     template = staging_json,)
-  k8s_deploy(
-    name = "dev-deployment",
+  k8s_object(
+    name = "dev-%s"%kind,
+    kind = kind,
     template = dev_json,)
-  k8s_deploy(
-    name = "local-deployment",
+  k8s_object(
+    name = "local-%s"%kind,
+    kind = kind,
     # Only tell k8s_deploy to look for and push the docker image for a local run
     images = {image_url: image_target},
     template = local_json,)
@@ -50,16 +54,31 @@ def makeDeepShallowTargets(name_prefix="server", image_url="", image_target=":se
   # We repeat these groups for all environments.
   # Note that the LOCAL environment depends on the :server-image as well as all dependencies.
   # Thus by creating/updating a LOCAL group you effectivly run everything at head.
-  [[k8s_objects(
-    name = "%s-%s-%s"%(name_prefix, env,depth),
+
+  # use the dependency template strings above to construct a build target
+  # that mirrors the environment and fetches the deep group.
+
+  [k8s_objects(
+    name = "%s-%s-%s"%(name_prefix, env,DEEP),
     objects = [
-        ":%s-deployment"%env,
+        ":%s-%s"%(env,kind),
     ] + [
         ":%s"%name for name in env_independent_jsons.keys()
     # If defining a shallow group just capture above k8s stuff, else
-    ] + [] if depth != DEEP else [
+    ] + [
         # use the dependency template strings above to construct a build target
         # that mirrors the environment and fetches the deep group.
         dep + "-%s-%s"%(env,DEEP) for dep in deps_templates],
-    ) for env in ALL] for depth in (SHALLOW, DEEP)]
+    ) for env in ALL]
+
+  [k8s_objects(
+    name = "%s-%s-%s"%(name_prefix, env,SHALLOW),
+    objects = [
+        ":%s-%s"%(env,kind),
+    ] + [
+        ":%s"%name for name in env_independent_jsons.keys()
+    # If defining a shallow group just capture above k8s stuff, else
+   ]) for env in ALL]                              
+
+
 

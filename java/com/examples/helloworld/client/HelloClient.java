@@ -50,6 +50,7 @@ public class HelloClient {
     public String foo(String name) {
 	FooRequest request = FooRequest.newBuilder().setName(name).build();
 	FooReply response;
+        System.out.println("Trying to call out to Foo  ");
 	try {
 	    response = blockingStub.foo(request);
 	    System.out.println("Foo(" + name + "): " + response.getMessage());
@@ -75,8 +76,10 @@ public class HelloClient {
 	if (args.length != 2) {
 	    throw new Exception("Expected single IP address argument.");
 	}
+        System.out.println("Creating a client");
 	HelloClient client = new HelloClient(args[0], Integer.parseInt(args[1]));
 	try {
+            System.out.println("Calling out");
 	    client.foo("world");
 	} finally {
 	    client.shutdown();
