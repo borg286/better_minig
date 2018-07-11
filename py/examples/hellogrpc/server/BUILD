@@ -28,12 +28,12 @@ load("//rules:envs.bzl","PROD", "STAGING", "DEV", "LOCAL", "makeDeepShallowTarge
 # The k8s_deploy only needs it so that it can know where to push the -image target above.
 # It is preferred to put as much as possible in the .jsonnet as possible. Only put here
 # what needs to get shared between targets as strings. 
-image_base = "us.gcr.io/some-prod-project/hello-grpc-py:"
+image_base = "localhost:5000/some-prod-project/hello-grpc-py:"
 images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "us.gcr.io/my-developer-project/hello-grpc-py"
+    LOCAL: "localhost:5000/my-developer-project/hello-grpc-py:randomtag"
 }
 port = "50002"
 
