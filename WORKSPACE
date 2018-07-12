@@ -349,6 +349,12 @@ maven_jar(
     sha1 = "85d54fe6771e5ff0d54827b0a3315c3e12fdd0c7",
 )
 
+# gson
+maven_jar(
+    name = "com_google_code_gson",
+    artifact = "com.google.code.gson:gson:2.8.5",
+)
+
 # ================================================================
 # Imports for go repos on github
 # ================================================================
