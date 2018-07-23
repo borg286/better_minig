@@ -40,7 +40,7 @@ public class Cart {
    * when decoded.
    */
   @Override
-  public String ftoString() {
+  public String toString() {
     StringBuilder itemsText = new StringBuilder();
     boolean first = true;
     if (lineItems != null) {
