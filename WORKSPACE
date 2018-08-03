@@ -335,6 +335,11 @@ maven_jar(
     name = "org_springframework_boot_spring_boot_actuator",
     artifact = "org.springframework.boot:spring-boot-actuator:2.0.3.RELEASE",
 )
+maven_jar(
+    name = "org_springframework_data_redis",
+    artifact = "org.springframework.data:spring-data-redis:2.0.9.RELEASE",
+)
+
 
 # Apache Commons
 
