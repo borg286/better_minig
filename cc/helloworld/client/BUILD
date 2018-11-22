@@ -43,18 +43,6 @@ jsonnet_to_json(
     ext_code_file_vars = ["kube", "server"],
 )
 
-makeDeepShallowTargets(
-    name_prefix = "job",
-    image_url = images[LOCAL],
-    image_target = ":client-image",
-    deps_templates = ["//cc/helloworld/server:server"],
-    prod_json = ":prod-job.json",
-    staging_json = ":staging-job.json",
-    dev_json = ":dev-job.json",
-    local_json = ":local-job.json",
-    env_independent_jsons = {},
-)
-
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")

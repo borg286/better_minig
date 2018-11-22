@@ -34,7 +34,7 @@ images = {
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 jsonnet_to_json(
-    name = "kube-job",
+    name = "json",
     src = "job.jsonnet",
     outs = ["prod-job.json", "staging-job.json", "dev-job.json", "local-job.json"],
     multiple_outputs = 1,
@@ -42,19 +42,6 @@ jsonnet_to_json(
     ext_code_files = ["@kube_jsonnet//:kube_lib", "//go/helloworld/server:service.json"],
     ext_code_file_vars = ["kube", "server"],
 )
-
-makeDeepShallowTargets(
-    name_prefix = "job",
-    image_url = images[LOCAL],
-    image_target = ":client-image",
-    deps_templates = ["//go/helloworld/server:server"],
-    prod_json = ":prod-job.json",
-    staging_json = ":staging-job.json",
-    dev_json = ":dev-job.json",
-    local_json = ":local-job.json",
-    env_independent_jsons = {},
-)
-
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
