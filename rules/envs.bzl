@@ -9,7 +9,17 @@ load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 load("@k8s_object//:defaults.bzl", "k8s_object")
 
 
-def makeDeepShallowTargets(name_prefix="server", image_url="", image_target=":server-image", deps_templates=[], kind="deployment", prod_json=":prod-server.json", staging_json=":staging-server.json", dev_json=":dev-server.json", local_json=":local-server.json", env_independent_jsons={"myservice":("service",":service.json")}):
+def makeDeepShallowTargets(
+    name_prefix="server",
+    image_url="",
+    image_target=":server-image",
+    deps_templates=[],
+    kind="deployment",
+    prod_json=":prod-server.json",
+    staging_json=":staging-server.json",
+    dev_json=":dev-server.json",
+    local_json=":local-server.json",
+    env_independent_jsons={"myservice":("service",":service.json")}):
 
   # deps_template = [
     # "//some/runtime/service/dependency"

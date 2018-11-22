@@ -394,14 +394,15 @@ load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
 
 # have this match the output from
 # kubectl config current-context
-_CLUSTER = "minikube"
+_CLUSTER = "gke_fiery-orb-681_us-central1-a_standard-cluster-1"
+_USER = "borg286"
 _PROJECT = "fiery-orb-681"
 _NAMESPACE = "{BUILD_USER}"
 
 k8s_defaults(
   name = "k8s_deploy",
   kind = "deployment",
-  image_chroot = "localhost:5000/" + _PROJECT + "/{BUILD_USER}",
+  image_chroot = "gcr.io/" + _PROJECT + "/{BUILD_USER}",
   cluster = _CLUSTER,
 )
 
@@ -412,7 +413,7 @@ k8s_defaults(
 k8s_defaults(
   name = "k8s_job",
   kind = "job",
-  image_chroot = "localhost:5000/" + _PROJECT + "/{BUILD_USER}",
+  image_chroot = "gcr.io/" + _PROJECT + "/{BUILD_USER}",
   cluster = _CLUSTER,
 )
 
