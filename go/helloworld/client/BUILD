@@ -21,7 +21,11 @@ go_image(
         "//proto/helloworld:go",
     ] + GRPC_COMPILE_DEPS,
 )
-load("//rules:envs.bzl","PROD", "STAGING", "DEV", "LOCAL", "makeDeepShallowTargets")
+
+PROD = "prod"
+STAGING = "staging"
+DEV = "dev"
+LOCAL = "local"
 
 image_base = "us.gcr.io/not-my-project/hello-grpc-go-client:"
 images = {

@@ -21,7 +21,10 @@ py_image(
 )
 
 
-load("//rules:envs.bzl","PROD", "STAGING", "DEV", "LOCAL", "makeDeepShallowTargets")
+PROD = "prod"
+STAGING = "staging"
+DEV = "dev"
+LOCAL = "local"
 
 # Both the kubernetes json as well as the k8s_deploy need to know the image.
 # This section fixes the docker image tags for each environment as the soure of truth.

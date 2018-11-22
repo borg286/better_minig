@@ -11,7 +11,11 @@ java_image(
         "@org_pubref_rules_protobuf//java:netty_runtime_deps",
     ],
 )
-load("//rules:envs.bzl","PROD", "STAGING", "DEV", "LOCAL", "makeDeepShallowTargets")
+
+PROD = "prod"
+STAGING = "staging"
+DEV = "dev"
+LOCAL = "local"
 
 image_base = "localhost:5000/not-my-project/hello-grpc-java-client:"
 images = {

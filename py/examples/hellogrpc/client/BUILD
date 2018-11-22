@@ -13,7 +13,10 @@ py_image(
     main = "client.py",
 )
 
-load("//rules:envs.bzl","PROD", "STAGING", "DEV", "LOCAL", "makeDeepShallowTargets")
+PROD = "prod"
+STAGING = "staging"
+DEV = "dev"
+LOCAL = "local"
 
 image_base = "localhost:5000/not-my-project/hello-grpc-py-client:"
 images = {

@@ -21,7 +21,10 @@ cc_image(
     binary = ":client-binary",
 )
 
-load("//rules:envs.bzl","PROD", "STAGING", "DEV", "LOCAL", "makeDeepShallowTargets")
+PROD = "prod"
+STAGING = "staging"
+DEV = "dev"
+LOCAL = "local"
 
 image_base = "us.gcr.io/not-my-project/hello-grpc-cc-client:"
 images = {
