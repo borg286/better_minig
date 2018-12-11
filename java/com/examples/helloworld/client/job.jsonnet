@@ -3,9 +3,8 @@ local kube = std.extVar("kube");
 local server = std.extVar("server");
 local images = std.extVar("images");
 
-local template = std.prune(kube.Job("java-client") {
+local template = std.prune(kube.Deployment("java-client") {
   spec+: {
-  selector: null,
     template+: {
       spec+: {
         containers_+: {

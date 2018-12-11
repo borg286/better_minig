@@ -7,6 +7,7 @@ load("@org_pubref_rules_protobuf//go:rules.bzl", "GRPC_COMPILE_DEPS")
 go_binary(
     name = "client-binary",
     srcs = ["main.go"],
+    pure = "on",
     importpath = "github.com/bazelbuild/rules_k8s/rules_k8s/examples/hellogrpc/go/client",
     deps = [
         "//proto/helloworld:go",
@@ -16,6 +17,7 @@ go_binary(
 go_image(
     name = "client-image",
     srcs = ["main.go"],
+    pure = "on",
     importpath = "github.com/bazelbuild/rules_k8s/rules_k8s/examples/hellogrpc/go/client",
     deps = [
         "//proto/helloworld:go",
@@ -32,7 +34,7 @@ images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "us.gcr.io/my-developer-project/hello-grpc-go-client"
+    LOCAL: "localhost:32000/my-developer-project/hello-grpc-go-client:some-tag"
 }
 
 
@@ -43,7 +45,7 @@ jsonnet_to_json(
     outs = ["prod-job.json", "staging-job.json", "dev-job.json", "local-job.json"],
     multiple_outputs = 1,
     ext_code = {"images": "%s"%images},
-    ext_code_files = ["@kube_jsonnet//:kube_lib", "//go/helloworld/server:service.json"],
+    ext_code_files = ["@kube_jsonnet//:kube_lib", "//java/com/examples/helloworld/server:service.json"],
     ext_code_file_vars = ["kube", "server"],
 )
 
@@ -99,15 +101,15 @@ k8s_objects(
 # Deep targets recursivly pull in all dependencies for sandbox/integration testing
 k8s_objects(
   name = "prod-deep",
-  objects = [":prod-job", "//java/com/examples/helloworld/server:prod-deep"],
+  objects = [":prod-job", "//go/helloworld/server:prod-deep"],
 )
 k8s_objects(
   name = "staging-deep",
-  objects = [":staging-job", "//java/com/examples/helloworld/server:staging-deep"],
+  objects = [":staging-job", "//go/helloworld/server:staging-deep"],
 )
 k8s_objects(
   name = "dev-deep",
-  objects = [":dev-job", "//java/com/examples/helloworld/server:dev-deep"],
+  objects = [":dev-job", "//go/helloworld/server:dev-deep"],
 )
 k8s_objects(
   name = "local-deep",

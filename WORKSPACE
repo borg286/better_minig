@@ -4,6 +4,9 @@ workspace(name = "brian")
 # Imports for examples/
 # ================================================================
 
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+
 git_repository(
     name = "org_pubref_rules_protobuf",
     tag = "v0.8.2",
@@ -21,7 +24,6 @@ cpp_proto_repositories()
 load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_repositories")
 
 java_proto_repositories()
-
 
 
 
@@ -394,7 +396,7 @@ load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
 
 # have this match the output from
 # kubectl config current-context
-_CLUSTER = "gke_fiery-orb-681_us-central1-a_standard-cluster-1"
+_CLUSTER = "microk8s-cluster"
 _USER = "borg286"
 _PROJECT = "fiery-orb-681"
 _NAMESPACE = "{BUILD_USER}"

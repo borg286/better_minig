@@ -18,25 +18,20 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
+        "time"
 
 	pb "github.com/bazelbuild/rules_k8s/examples/hellogrpc/proto/go"
 	"google.golang.org/grpc"
 )
 
-var port = flag.String("grpc_server", "50051", "port to send requests to")
+var port = flag.String("grpc_server_port", "50051", "port to send requests to")
+var server = flag.String("grpc_server_domain", "go-svc", "hostname or dns name of the server to talk to")
 
 func main() {
 	flag.Parse()
 	ctx := context.Background()
 
-	if len(os.Args) != 2 {
-		log.Fatalf("Expected a single IP argument")
-	}
-
-	addr := os.Args[1]
-
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", addr, port), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", server, port), grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Dial: %v", err)
 	}
@@ -44,11 +39,15 @@ func main() {
 
 	client := pb.NewSimpleClient(conn)
 
-	fooRep, err := client.Foo(ctx, &pb.FooRequest{
+        for {
+
+	  fooRep, err := client.Foo(ctx, &pb.FooRequest{
 		Name: "world",
-	})
-	if err != nil {
+	  })
+ 	  if err != nil {
 		log.Fatalf("Foo: %v", err)
-	}
-	fmt.Printf("Foo(%s): %s\n", "world", fooRep.Message)
+  	  }
+	  fmt.Printf("Foo(%s): %s\n", "world", fooRep.Message)
+          time.Sleep(5000 * time.Millisecond)
+        }
 }

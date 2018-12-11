@@ -22,6 +22,7 @@ import io.grpc.StatusRuntimeException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
 
 import com.examples.helloworld.proto.SimpleGrpc;
 import com.examples.helloworld.proto.FooRequest;
@@ -80,7 +81,10 @@ public class HelloClient {
 	HelloClient client = new HelloClient(args[0], Integer.parseInt(args[1]));
 	try {
             System.out.println("Calling out");
-	    client.foo("world");
+            while(true) {
+		    client.foo("world");
+		    TimeUnit.SECONDS.sleep(5);
+	    }
 	} finally {
 	    client.shutdown();
 	}

@@ -5,6 +5,7 @@ load("@org_pubref_rules_protobuf//go:rules.bzl", "GRPC_COMPILE_DEPS")
 
 go_image(
     name = "server-image",
+    pure = "on",
     srcs = ["main.go"],
     importpath = "github.com/bazelbuild/not-my-project/go/helloworld/server",
     deps = [
@@ -27,9 +28,9 @@ images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "us.gcr.io/my-developer-project/hello-grpc-go"
+    LOCAL: "localhost:32000/my-developer-project/hello-grpc-go:some-tag"
 }
-port = "50001"
+port = "50003"
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 jsonnet_to_json(

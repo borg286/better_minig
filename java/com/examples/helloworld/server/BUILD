@@ -37,7 +37,7 @@ images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "localhost:5000/fiery-orb-681/hello-grpc-java-server:random-tag"
+    LOCAL: "localhost:32000/fiery-orb-681/hello-grpc-java-server:random-tag"
 }
 PORT = "50001"
 
