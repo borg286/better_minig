@@ -7,6 +7,7 @@ cc_proto_library(
     protos = [
         "simple.proto",
     ],
+    with_grpc = True,
 )
 
 load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_library")
@@ -16,6 +17,7 @@ java_proto_library(
     protos = [
         "simple.proto",
     ],
+    with_grpc = True,
 )
 
 load("@org_pubref_rules_protobuf//go:rules.bzl", "go_proto_library")
@@ -26,6 +28,7 @@ go_proto_library(
     protos = [
         "simple.proto",
     ],
+    with_grpc = True,
 )
 
 load("@org_pubref_rules_protobuf//python:rules.bzl", "py_proto_library")
@@ -35,4 +38,5 @@ py_proto_library(
     protos = [
         "simple.proto",
     ],
+    with_grpc = True,
 )

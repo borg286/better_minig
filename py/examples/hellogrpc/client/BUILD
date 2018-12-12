@@ -7,6 +7,7 @@ py_image(
     name = "client-image",
     srcs = ["client.py"],
     deps = [
+        requirement("setuptools"),
         requirement("grpcio"),
         "//proto/helloworld:py",
     ],
@@ -23,7 +24,7 @@ images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "localhost:5000/my-developer-project/hello-grpc-py-client:randomtag"
+    LOCAL: "localhost:32000/my-developer-project/hello-grpc-py-client:randomtag"
 }
 
 
@@ -34,7 +35,7 @@ jsonnet_to_json(
     outs = ["prod-job.json", "staging-job.json", "dev-job.json", "local-job.json"],
     multiple_outputs = 1,
     ext_code = {"images": "%s"%images},
-    ext_code_files = ["@kube_jsonnet//:kube_lib", "//py/examples/hellogrpc/server:service.json"],
+    ext_code_files = ["@kube_jsonnet//:kube_lib", "//java/com/examples/helloworld/server:service.json"],
     ext_code_file_vars = ["kube", "server"],
 )
 
@@ -91,15 +92,15 @@ k8s_objects(
 # Deep targets recursivly pull in all dependencies for sandbox/integration testing
 k8s_objects(
   name = "prod-deep",
-  objects = [":prod-job", "//java/com/examples/helloworld/server:prod-deep"],
+  objects = [":prod-job", "//py/examples/hellogrpc/server:prod-deep"],
 )
 k8s_objects(
   name = "staging-deep",
-  objects = [":staging-job", "//java/com/examples/helloworld/server:staging-deep"],
+  objects = [":staging-job", "//py/examples/hellogrpc/server:staging-deep"],
 )
 k8s_objects(
   name = "dev-deep",
-  objects = [":dev-job", "//java/com/examples/helloworld/server:dev-deep"],
+  objects = [":dev-job", "//py/examples/hellogrpc/server:dev-deep"],
 )
 k8s_objects(
   name = "local-deep",

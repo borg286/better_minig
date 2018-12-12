@@ -12,8 +12,8 @@ py_image(
     # ~400KB.  By partitioning things this way, the large grpcio layer remains
     # unchanging and we can reduce the amount of image data we repush by ~99%!
     layers = [
-        requirement("grpcio"),
         requirement("setuptools"),
+        requirement("grpcio"),
 
         "//proto/helloworld:py",
     ],
@@ -36,7 +36,7 @@ images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "localhost:5000/my-developer-project/hello-grpc-py:randomtag"
+    LOCAL: "localhost:32000/my-developer-project/hello-grpc-py:randomtag"
 }
 port = "50002"
 

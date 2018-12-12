@@ -16,15 +16,19 @@
 import grpc
 import sys
 
-from examples.hellogrpc.proto import simple_pb2
-from examples.hellogrpc.proto import simple_pb2_grpc
+from proto.helloworld import simple_pb2
+from proto.helloworld import simple_pb2_grpc
 
 
 def run():
+    print("creating channel to " + sys.argv[1] + ':' + sys.argv[2])
     channel = grpc.insecure_channel(sys.argv[1] + ':' + sys.argv[2])
+    print("Creating stub")
     stub = simple_pb2_grpc.SimpleStub(channel)
+    print("calling service")
     response = stub.Foo(simple_pb2.FooRequest(name='world'))
     print("Foo(world): " + response.message)
 
 if __name__ == '__main__':
+    print("running")
     run()
