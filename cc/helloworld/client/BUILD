@@ -31,7 +31,7 @@ images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "us.gcr.io/my-developer-project/hello-grpc-cc-client"
+    LOCAL: "localhost:32000/my-developer-project/hello-grpc-cc-client:some_tag"
 }
 
 
@@ -42,7 +42,7 @@ jsonnet_to_json(
     outs = ["prod-job.json", "staging-job.json", "dev-job.json", "local-job.json"],
     multiple_outputs = 1,
     ext_code = {"images": "%s"%images},
-    ext_code_files = ["@kube_jsonnet//:kube_lib", "//cc/helloworld/server:service.json"],
+    ext_code_files = ["@kube_jsonnet//:kube_lib", "//java/com/examples/helloworld/server:service.json"],
     ext_code_file_vars = ["kube", "server"],
 )
 
@@ -99,22 +99,17 @@ k8s_objects(
 # Deep targets recursivly pull in all dependencies for sandbox/integration testing
 k8s_objects(
   name = "prod-deep",
-  objects = [":prod-job", "//java/com/examples/helloworld/server:prod-deep"],
+  objects = [":prod-job", "//cc/helloworld/server:prod-deep"],
 )
 k8s_objects(
   name = "staging-deep",
-  objects = [":staging-job", "//java/com/examples/helloworld/server:staging-deep"],
+  objects = [":staging-job", "//cc/helloworld/server:staging-deep"],
 )
 k8s_objects(
   name = "dev-deep",
-  objects = [":dev-job", "//java/com/examples/helloworld/server:dev-deep"],
+  objects = [":dev-job", "//cc/helloworld/server:dev-deep"],
 )
 k8s_objects(
   name = "local-deep",
   objects = [":local-job", "//java/com/examples/helloworld/server:local-deep"],
 )
-
-
-
-
-

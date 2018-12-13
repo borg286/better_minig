@@ -43,7 +43,7 @@ images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "us.gcr.io/my-developer-project/hello-grpc-cc"
+    LOCAL: "localhost:32000/my-developer-project/hello-grpc-cc:some-tag"
 }
 port = "50001"
 
