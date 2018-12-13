@@ -13,22 +13,60 @@
 # limitations under the License.
 """Python hellogrpc client implementation."""
 
+f = open('/tmp/1_starting', 'w')
+f.write('sd')
+f.close()
+print("importing grpc")
+
 import grpc
 import sys
+
+f = open('/tmp/2_trying_to_import_proto', 'w')
+f.write('sd')
+f.close()
+
+print("importing proto files")
 
 from proto.helloworld import simple_pb2
 from proto.helloworld import simple_pb2_grpc
 
 
+f = open('/tmp/3_defining_run', 'w')
+f.write('sd')
+f.close()
+
 def run():
-    print("creating channel to " + sys.argv[1] + ':' + sys.argv[2])
+  try:
+    print("running")
+    f = open('/tmp/4_creating_channel', 'w')
+    f.write('sd')
+    f.close()
     channel = grpc.insecure_channel(sys.argv[1] + ':' + sys.argv[2])
-    print("Creating stub")
+
+    f = open('/tmp/5_creating_stub', 'w')
+    f.write('sd')
+    f.close()
+
     stub = simple_pb2_grpc.SimpleStub(channel)
-    print("calling service")
+
+    f = open('/tmp/6_calling_foo', 'w')
+    f.write('sd')
+    f.close()
+
+    print("calling Foo")
+
     response = stub.Foo(simple_pb2.FooRequest(name='world'))
-    print("Foo(world): " + response.message)
+    f = open('/tmp/7_response_foo', 'w')
+    f.write(response)
+    f.close()
+    print("done calling foo")
+
+  except Error as e:
+    message = "Error: {0}".format(e)
+    f = open('tmp/error', 'w')
+    f.write(message)
+    f.close()
+    print(message)
 
 if __name__ == '__main__':
-    print("running")
-    run()
+  run()

@@ -2,15 +2,20 @@
 local kube = std.extVar("kube");
 local server = std.extVar("server");
 local images = std.extVar("images");
+local utils = std.extVar("utils");
 
-local template = std.prune(kube.Job("py-client") {
+
+local template = std.prune(kube.Deployment("py-client") {
   spec+: {
-  selector: null,
     template+: {
       spec+: {
         containers_+: {
           foo_cont: kube.Container("client") {
             image: "will be replaced",
+            envObj:: {
+              PYTHONUNBUFFERED: '0',
+            },
+            env: utils.pairList(self.envObj),
             args: [server.metadata.name, std.toString(server.spec.ports[0].port)],
           },
         },

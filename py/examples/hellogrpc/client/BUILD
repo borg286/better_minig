@@ -11,6 +11,7 @@ py_image(
         requirement("grpcio"),
         "//proto/helloworld:py",
     ],
+    imports = ["setuptools", "grpc"],
     main = "client.py",
 )
 
@@ -35,8 +36,12 @@ jsonnet_to_json(
     outs = ["prod-job.json", "staging-job.json", "dev-job.json", "local-job.json"],
     multiple_outputs = 1,
     ext_code = {"images": "%s"%images},
-    ext_code_files = ["@kube_jsonnet//:kube_lib", "//java/com/examples/helloworld/server:service.json"],
-    ext_code_file_vars = ["kube", "server"],
+    ext_code_files = [
+        "@kube_jsonnet//:kube_lib",
+        "//java/com/examples/helloworld/server:service.json",
+        "//jsonnet:utils.libsonnet"
+    ],
+    ext_code_file_vars = ["kube", "server", "utils"],
 )
 
 
