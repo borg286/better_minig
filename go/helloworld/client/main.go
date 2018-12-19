@@ -31,7 +31,7 @@ func main() {
 	flag.Parse()
 	ctx := context.Background()
 
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", server, port), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", *server, *port), grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Dial: %v", err)
 	}
