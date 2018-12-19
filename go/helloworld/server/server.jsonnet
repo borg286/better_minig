@@ -11,7 +11,7 @@ local template = kube.Deployment("go-depl") {
         spec+: {
           containers_+: {
             gb_fe: kube.Container("server") {
-              args: [std.toString(port)],
+              args: ["-port", std.toString(port)],
               ports_+: { grpc: { containerPort: port } },
 }}}}}};
 
