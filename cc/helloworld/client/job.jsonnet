@@ -10,7 +10,7 @@ local template = std.prune(kube.Deployment("cc-client") {
         containers_+: {
           foo_cont: kube.Container("client") {
             image: "will be replaced",
-            args: [server.metadata.name + ":" + server.spec.ports[0].port],
+            args: [server.metadata.name, std.toString(server.spec.ports[0].port)],
           },
         },
       },

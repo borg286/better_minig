@@ -1,0 +1,10 @@
+PROJECT = "redis-mrmath-test-1"
+CLUSTER = "gke_redis-mrmath-test-1_us-central1-a_standard-cluster-1"
+USER = "mrmath"
+NAMESPACE = "{BUILD_USER}"
+REGISTRY = "gcr.io"
+
+PROD = "prod"
+STAGING = "staging"
+DEV = "dev"
+LOCAL = "local"

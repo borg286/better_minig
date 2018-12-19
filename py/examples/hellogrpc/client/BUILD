@@ -15,17 +15,13 @@ py_image(
     main = "client.py",
 )
 
-PROD = "prod"
-STAGING = "staging"
-DEV = "dev"
-LOCAL = "local"
-
-image_base = "localhost:5000/not-my-project/hello-grpc-py-client:"
+load("//rules:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
+image_base = "%s/%s/hello-grpc-py-client:"%(REGISTRY, PROJECT)
 images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "localhost:32000/my-developer-project/hello-grpc-py-client:randomtag"
+    LOCAL: image_base + "local_tag"
 }
 
 

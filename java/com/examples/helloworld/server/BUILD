@@ -23,23 +23,16 @@ java_image(
     ],
 )
 
-PROD = "prod"
-STAGING = "staging"
-DEV = "dev"
-LOCAL = "local"
-# Both the kubernetes json as well as the k8s_deploy need to know the image.
-# This section fixes the docker image tags for each environment as the soure of truth.
-# The k8s_deploy only needs it so that it can know where to push the -image target above.
-# It is preferred to put as much as possible in the .jsonnet as possible. Only put here
-# what needs to get shared between targets as strings. 
-image_base = "gcr.io/fiery-orb-681/hello-grpc-java-server:"
+load("//rules:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
+image_base = "%s/%s/hello-grpc-java:"%(REGISTRY, PROJECT)
 images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "localhost:32000/fiery-orb-681/hello-grpc-java-server:random-tag"
+    LOCAL: image_base + "local_tag"
 }
-PORT = "50001"
+port = "50001"
+
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 jsonnet_to_json(
@@ -47,7 +40,7 @@ jsonnet_to_json(
     src = "server.jsonnet",
     outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json", "service.json"],
     multiple_outputs = 1,
-    ext_code = {"images": "%s"%images, "port": PORT},
+    ext_code = {"images": "%s"%images, "port": port},
     ext_code_files = ["@kube_jsonnet//:kube_lib"],
     ext_code_file_vars = ["kube"],
 )

@@ -24,19 +24,14 @@ go_image(
     ] + GRPC_COMPILE_DEPS,
 )
 
-PROD = "prod"
-STAGING = "staging"
-DEV = "dev"
-LOCAL = "local"
-
-image_base = "us.gcr.io/not-my-project/hello-grpc-go-client:"
+load("//rules:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
+image_base = "%s/%s/hello-grpc-go-client:"%(REGISTRY, PROJECT)
 images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "localhost:32000/my-developer-project/hello-grpc-go-client:some-tag"
+    LOCAL: image_base + "local_tag"
 }
-
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 jsonnet_to_json(

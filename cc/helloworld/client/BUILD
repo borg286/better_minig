@@ -26,12 +26,13 @@ STAGING = "staging"
 DEV = "dev"
 LOCAL = "local"
 
-image_base = "us.gcr.io/not-my-project/hello-grpc-cc-client:"
+load("//rules:cluster_consts.bzl", "REGISTRY", "PROJECT")
+image_base = "%s/%s/hello-grpc-cc-client:"%(REGISTRY, PROJECT)
 images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
-    LOCAL: "localhost:32000/my-developer-project/hello-grpc-cc-client:some_tag"
+    LOCAL: image_base + "local_tag"
 }
 
 

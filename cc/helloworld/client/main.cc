@@ -20,11 +20,7 @@
 int main(int argc, char** argv) {
   std::cout << "Starting" << std::endl;
 
-  if (argc != 2) {
-    std::cerr << "Expected single IP address argument." << std::endl;
-    return 1;
-  }
-  std::string address("dns://");
+  std::string address("");
   address.append(argv[1]);
   address.append(".default.svc.cluster.local");
   address.append(":");
