@@ -15,6 +15,7 @@
 
 import grpc
 import sys
+import time
 
 from proto.helloworld import simple_pb2
 from proto.helloworld import simple_pb2_grpc
@@ -28,11 +29,13 @@ def run():
                      ('grpc.enable_retries', 0), ('grpc.keepalive_timeout_ms',
                                                   10000)])
 
-    stub = simple_pb2_grpc.SimpleStub(channel)
-    print("calling Foo")
 
-    response = stub.Foo(simple_pb2.FooRequest(name='world'), timeout=2)
-    print("done calling foo")
+    stub = simple_pb2_grpc.SimpleStub(channel)
+    while True:
+      print("calling Foo")
+      response = stub.Foo(simple_pb2.FooRequest(name='world'), timeout=2)
+      print("done calling foo")
+      time.sleep(5)
 
   except Exception as e:
     message = "Error: {0}".format(e)

@@ -2,6 +2,7 @@
 local kube = std.extVar("kube");
 local port = std.extVar("port");
 local images = std.extVar("images");
+local utils = std.extVar("utils");
 
 local template = kube.Deployment("py-depl") {
     spec+: {
@@ -11,6 +12,10 @@ local template = kube.Deployment("py-depl") {
         spec+: {
           containers_+: {
             gb_fe: kube.Container("server") {
+              envObj:: {
+                PYTHONUNBUFFERED: '0',
+              },
+              env: utils.pairList(self.envObj),
               args: [std.toString(port)],
               ports_+: { grpc: { containerPort: port } },
 }}}}}};

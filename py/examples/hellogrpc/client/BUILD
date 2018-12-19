@@ -34,7 +34,7 @@ jsonnet_to_json(
     ext_code = {"images": "%s"%images},
     ext_code_files = [
         "@kube_jsonnet//:kube_lib",
-        "//java/com/examples/helloworld/server:service.json",
+        "//py/examples/hellogrpc/server:service.json",
         "//jsonnet:utils.libsonnet"
     ],
     ext_code_file_vars = ["kube", "server", "utils"],
@@ -105,7 +105,7 @@ k8s_objects(
 )
 k8s_objects(
   name = "local-deep",
-  objects = [":local-job", "//java/com/examples/helloworld/server:local-deep"],
+  objects = [":local-job", "//py/examples/hellogrpc/server:local-deep"],
 )
 
 

@@ -37,8 +37,8 @@ jsonnet_to_json(
     outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json", "service.json"],
     multiple_outputs = 1,
     ext_code = {"images": "%s"%images, "port": port},
-    ext_code_files = ["@kube_jsonnet//:kube_lib"],
-    ext_code_file_vars = ["kube"],
+    ext_code_files = ["@kube_jsonnet//:kube_lib", "//jsonnet:utils.libsonnet"],
+    ext_code_file_vars = ["kube", "utils"],
 )
 
 
