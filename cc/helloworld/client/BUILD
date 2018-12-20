@@ -43,7 +43,7 @@ jsonnet_to_json(
     outs = ["prod-job.json", "staging-job.json", "dev-job.json", "local-job.json"],
     multiple_outputs = 1,
     ext_code = {"images": "%s"%images},
-    ext_code_files = ["@kube_jsonnet//:kube_lib", "//java/com/examples/helloworld/server:service.json"],
+    ext_code_files = ["@kube_jsonnet//:kube_lib", "//cc/helloworld/server:service.json"],
     ext_code_file_vars = ["kube", "server"],
 )
 
@@ -112,5 +112,5 @@ k8s_objects(
 )
 k8s_objects(
   name = "local-deep",
-  objects = [":local-job", "//java/com/examples/helloworld/server:local-deep"],
+  objects = [":local-job", "//cc/helloworld/server:local-deep"],
 )

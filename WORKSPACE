@@ -396,26 +396,23 @@ load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
 
 # have this match the output from
 # kubectl config current-context
-_CLUSTER = "gke_redis-mrmath-test-1_us-central1-a_standard-cluster-1"
-_USER = "mrmath"
-PROJECT = "redis-mrmath-test-1"
-_NAMESPACE = "{BUILD_USER}"
+load("//rules:cluster_consts.bzl", "CLUSTER", "USER", "PROJECT", "NAMESPACE")
 
 k8s_defaults(
   name = "k8s_deploy",
   kind = "deployment",
   image_chroot = "gcr.io/" + PROJECT + "/{BUILD_USER}",
-  cluster = _CLUSTER,
+  cluster = CLUSTER,
 )
 
 k8s_defaults(
   name = "k8s_object",
-  cluster = _CLUSTER,
+  cluster = CLUSTER,
 )
 k8s_defaults(
   name = "k8s_job",
   kind = "job",
   image_chroot = "gcr.io/" + PROJECT + "/{BUILD_USER}",
-  cluster = _CLUSTER,
+  cluster = CLUSTER,
 )
 

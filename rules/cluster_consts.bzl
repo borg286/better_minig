@@ -1,8 +1,8 @@
-PROJECT = "redis-mrmath-test-1"
-CLUSTER = "gke_redis-mrmath-test-1_us-central1-a_standard-cluster-1"
-USER = "mrmath"
+PROJECT = "fiery-orb-681"
+CLUSTER = "kubernetes"
+USER = "borg286"
 NAMESPACE = "{BUILD_USER}"
-REGISTRY = "gcr.io"
+REGISTRY = "localhost:32000"
 
 PROD = "prod"
 STAGING = "staging"
