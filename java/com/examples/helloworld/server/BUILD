@@ -32,28 +32,17 @@ images = {
     LOCAL: image_base + "local_tag"
 }
 PORT = "50001"
-NAME = "java-depl"
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 jsonnet_to_json(
     name = "json",
     src = "server.jsonnet",
-    outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json"],
+    outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json", "service.json"],
     multiple_outputs = 1,
-    ext_code = {"images": "%s"%images, "port": PORT, "name": NAME},
+    ext_code = {"images": "%s"%images, "port": PORT},
     ext_code_files = ["@kube_jsonnet//:kube_lib"],
     ext_code_file_vars = ["kube"],
 )
-# Separate the service so we don't have to build much for clients to build
-jsonnet_to_json(
-    name = "service_json",
-    src = "service.jsonnet",
-    outs = ["service.json"],
-    ext_code = {"port": PORT, "name": NAME},
-    ext_code_files = ["@kube_jsonnet//:kube_lib"],
-    ext_code_file_vars = ["kube"],
-)
-
 
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
