@@ -20,7 +20,7 @@ py_image(
     main = "server.py",
 )
 
-load("//rules:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
+load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
 image_base = "%s/%s/hello-grpc-py:"%(REGISTRY, PROJECT)
 images = {
     PROD: image_base + "my_prod_sha",

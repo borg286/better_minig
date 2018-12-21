@@ -396,7 +396,7 @@ load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
 
 # have this match the output from
 # kubectl config current-context
-load("//rules:cluster_consts.bzl", "CLUSTER", "USER", "PROJECT", "NAMESPACE")
+load("//prod:cluster_consts.bzl", "CLUSTER", "USER", "PROJECT", "NAMESPACE")
 
 k8s_defaults(
   name = "k8s_deploy",

@@ -33,7 +33,7 @@ cc_image(
 # The k8s_deploy only needs it so that it can know where to push the -image target above.
 # It is preferred to put as much as possible in the .jsonnet as possible. Only put here
 # what needs to get shared between targets as strings. 
-load("//rules:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
+load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
 image_base = "%s/%s/hello-grpc-cc:"%(REGISTRY, PROJECT)
 images = {
     PROD: image_base + "my_prod_sha",

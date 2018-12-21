@@ -26,7 +26,7 @@ STAGING = "staging"
 DEV = "dev"
 LOCAL = "local"
 
-load("//rules:cluster_consts.bzl", "REGISTRY", "PROJECT")
+load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT")
 image_base = "%s/%s/hello-grpc-cc-client:"%(REGISTRY, PROJECT)
 images = {
     PROD: image_base + "my_prod_sha",

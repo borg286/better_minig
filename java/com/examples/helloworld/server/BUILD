@@ -23,7 +23,7 @@ java_image(
     ],
 )
 
-load("//rules:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
+load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
 image_base = "%s/%s/hello-grpc-java:"%(REGISTRY, PROJECT)
 images = {
     PROD: image_base + "my_prod_sha",
@@ -128,7 +128,7 @@ k8s_objects(
 # This server happens to not have any dependencies.
 k8s_objects(
   name = "prod-deep",
-  objects = [":prod-deployment", ":prod_service"],
+  objects = [":prod-shallow", ":prod_service"],
 )
 k8s_objects(
   name = "staging-deep",
