@@ -2,8 +2,9 @@
 local kube = std.extVar("kube");
 local port = std.extVar("port");
 local images = std.extVar("images");
+local name = std.extVar("name")
 
-local template = kube.Deployment("java-depl") {
+local template = kube.Deployment(name) {
     spec+: {
       local my_spec = self,
       replicas: 1,

@@ -29,7 +29,6 @@ jsonnet_to_json(
     multiple_outputs = 1,
     ext_code = {"images": "%s"%images},
     ext_code_files = ["@kube_jsonnet//:kube_lib", "//java/com/examples/helloworld/server:service.json"],
-#    ext_code_files = ["@kube_jsonnet//:kube_lib", "//py/examples/hellogrpc/server:service.json"],
     ext_code_file_vars = ["kube", "server"],
 )
 
@@ -41,24 +40,28 @@ load("@k8s_object//:defaults.bzl", "k8s_object")
 k8s_object(
   name = "prod-job",
   kind = "job",
-  template = ":prod-job.json"
+  template = ":prod-job.json",
+  namespace = PROD,
 )
 k8s_object(
   name = "staging-job",
   kind = "job",
-  template = ":staging-job.json"
+  template = ":staging-job.json",
+  namespace = STAGING,
 )
 k8s_object(
   name = "dev-job",
   kind = "job",
-  template = ":dev-job.json"
+  template = ":dev-job.json",
+  namespace = DEV,
 )
 k8s_object(
   name = "local-job",
   kind = "job",
   # Only tell k8s_deploy to look for and push the docker image for a local run
   images = {images[LOCAL]: ":client-image"},
-  template = ":local-job.json"
+  template = ":local-job.json",
+  namespace = LOCAL,
 )
 
 
