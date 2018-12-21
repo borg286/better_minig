@@ -2,7 +2,7 @@
 local kube = std.extVar("kube");
 local port = std.extVar("port");
 local images = std.extVar("images");
-local name = std.extVar("name")
+local name = std.extVar("name");
 
 local template = kube.Deployment(name) {
     spec+: {
@@ -52,9 +52,4 @@ local template = kube.Deployment(name) {
             gb_fe+: {
               image: images["local"],
   }}}}}},
-
-  
-  "service.json": kube.Service("grpc-java") {
-    target_pod: $["prod-server.json"].spec.template,
-  }
 }

@@ -44,10 +44,11 @@ jsonnet_to_json(
     ext_code_files = ["@kube_jsonnet//:kube_lib"],
     ext_code_file_vars = ["kube"],
 )
+# Separate the service so we don't have to build much for clients to build
 jsonnet_to_json(
     name = "service_json",
     src = "service.jsonnet",
-    out = "service.json",
+    outs = ["service.json"],
     ext_code = {"port": PORT, "name": NAME},
     ext_code_files = ["@kube_jsonnet//:kube_lib"],
     ext_code_file_vars = ["kube"],
