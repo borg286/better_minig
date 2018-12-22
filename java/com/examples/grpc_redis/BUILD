@@ -46,15 +46,4 @@ images = {
 }
 port = "50001"
 
-load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
-jsonnet_to_json(
-    name = "kube-service",
-    src = "server.jsonnet",
-    outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json", "service.json"],
-    multiple_outputs = 1,
-    ext_code = {"images": "%s"%images, "port": port},
-    ext_code_files = ["@kube_jsonnet//:kube_lib"],
-    ext_code_file_vars = ["kube"],
-)
 
-  

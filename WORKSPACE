@@ -136,7 +136,7 @@ py_proto_repositories()
 
 git_repository(
     name = "io_bazel_rules_jsonnet",
-    commit = "9cecb2e53ce539f35e1619e3935f7d3adee8ccdd",
+    commit = "f39f5fd8c9d8ae6273cd6d8610016a561d4d1c95",
     remote = "https://github.com/bazelbuild/rules_jsonnet.git",
 )
 

@@ -34,19 +34,18 @@ images = {
     DEV: image_base + "my_dev_sha",
     LOCAL: image_base + "local_tag"
 }
-
+server_folder = "//cc/helloworld/server"
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 jsonnet_to_json(
-    name = "kube-job",
+    name = "json",
     src = "job.jsonnet",
     outs = ["prod-job.json", "staging-job.json", "dev-job.json", "local-job.json"],
     multiple_outputs = 1,
     ext_code = {"images": "%s"%images},
-    ext_code_files = ["@kube_jsonnet//:kube_lib", "//cc/helloworld/server:service.json"],
+    ext_code_files = ["@kube_jsonnet//:kube_lib", server_folder + ":service.json"],
     ext_code_file_vars = ["kube", "server"],
 )
-
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
@@ -56,24 +55,28 @@ load("@k8s_object//:defaults.bzl", "k8s_object")
 k8s_object(
   name = "prod-job",
   kind = "job",
-  template = ":prod-job.json"
+  template = ":prod-job.json",
+  namespace = PROD,
 )
 k8s_object(
   name = "staging-job",
   kind = "job",
-  template = ":staging-job.json"
+  template = ":staging-job.json",
+  namespace = STAGING,
 )
 k8s_object(
   name = "dev-job",
   kind = "job",
-  template = ":dev-job.json"
+  template = ":dev-job.json",
+  namespace = DEV,
 )
 k8s_object(
   name = "local-job",
   kind = "job",
   # Only tell k8s_deploy to look for and push the docker image for a local run
   images = {images[LOCAL]: ":client-image"},
-  template = ":local-job.json"
+  template = ":local-job.json",
+  namespace = LOCAL,
 )
 
 
@@ -100,17 +103,22 @@ k8s_objects(
 # Deep targets recursivly pull in all dependencies for sandbox/integration testing
 k8s_objects(
   name = "prod-deep",
-  objects = [":prod-job", "//cc/helloworld/server:prod-deep"],
+  objects = [":prod-job", server_folder + ":prod-deep"],
 )
 k8s_objects(
   name = "staging-deep",
-  objects = [":staging-job", "//cc/helloworld/server:staging-deep"],
+  objects = [":staging-job", server_folder + ":staging-deep"],
 )
 k8s_objects(
   name = "dev-deep",
-  objects = [":dev-job", "//cc/helloworld/server:dev-deep"],
+  objects = [":dev-job", server_folder + ":dev-deep"],
 )
 k8s_objects(
   name = "local-deep",
-  objects = [":local-job", "//cc/helloworld/server:local-deep"],
+  objects = [":local-job", server_folder + ":local-deep"],
 )
+
+
+
+
+
