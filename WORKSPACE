@@ -210,10 +210,13 @@ new_http_archive(
     strip_prefix = "kube-libsonnet-d30a2d7fd5c6686b5a2aeda914533530e26019e0",
 	build_file_content = """
 package(default_visibility = ["//visibility:public"])
-filegroup(
+load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_library")
+
+jsonnet_library(
     name = "kube_lib",
     srcs = ["kube.libsonnet"],
-)""",
+)
+""",
 )
 
 

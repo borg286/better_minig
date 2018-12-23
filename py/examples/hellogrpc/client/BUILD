@@ -31,13 +31,10 @@ jsonnet_to_json(
     src = "job.jsonnet",
     outs = ["prod-job.json", "staging-job.json", "dev-job.json", "local-job.json"],
     multiple_outputs = 1,
+    deps = ["@kube_jsonnet//:kube_lib", "//jsonnet:utils"],
+    ext_code_files = [server_folder + ":service.json"],
+    ext_code_file_vars = ["server"],
     ext_code = {"images": "%s"%images},
-    ext_code_files = [
-        "@kube_jsonnet//:kube_lib",
-        server_folder + ":service.json",
-        "//jsonnet:utils.libsonnet"
-    ],
-    ext_code_file_vars = ["kube", "server", "utils"],
 )
 
 

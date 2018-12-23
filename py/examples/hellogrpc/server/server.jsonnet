@@ -1,8 +1,8 @@
 
-local kube = std.extVar("kube");
+local kube = import 'external/kube_jsonnet/kube.libsonnet';
 local port = std.extVar("port");
 local images = std.extVar("images");
-local utils = std.extVar("utils");
+local utils = import 'jsonnet/utils.libsonnet';
 
 local template = kube.Deployment("py-depl") {
     spec+: {

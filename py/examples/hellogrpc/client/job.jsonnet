@@ -1,8 +1,7 @@
-
-local kube = std.extVar("kube");
+local kube = import 'external/kube_jsonnet/kube.libsonnet';
+local utils = import 'jsonnet/utils.libsonnet';
 local server = std.extVar("server");
 local images = std.extVar("images");
-local utils = std.extVar("utils");
 
 
 local template = std.prune(kube.Deployment("py-client") {
