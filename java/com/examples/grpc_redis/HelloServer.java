@@ -95,6 +95,7 @@ public class HelloServer {
 
     /** Main launches the server from the command line. */
     public static void main(String[] args) throws Exception {
+        System.out.println("arg 0: " + args[0] + ", arg 1:" + args[1]);
         final HelloServer server = new HelloServer(Integer.parseInt(args[0]), args[1]);
 	server.start();
 	server.blockUntilShutdown();

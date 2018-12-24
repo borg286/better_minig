@@ -1,6 +1,7 @@
-local kube = std.extVar("kube");
+local kube = import 'external/kube_jsonnet/kube.libsonnet';
+
 {
-  redis(name):: kube.Deployment(name) {
+  Server(name):: kube.Deployment(name) {
       spec+: {
         replicas: 1,
         template+: {
@@ -12,7 +13,7 @@ local kube = std.extVar("kube");
                 args: [],
                 ports_+: { tcp: { containerPort: 6379 } },
   }}}}}},
-  redisService(name, target+_pod):: kube.Service(name) {
+  Service(name, target_pod):: kube.Service(name) {
     target_pod: target_pod,
   }
 ,

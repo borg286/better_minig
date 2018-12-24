@@ -1,9 +1,12 @@
 
-local kube = std.extVar("kube");
-local port = std.extVar("port");
-local images = std.extVar("images");
+local kube = import 'external/kube_jsonnet/kube.libsonnet';
+local redis = import 'jsonnet/redis.libsonnet';
+local params = std.extVar("params");
 
-local template = kube.Deployment("redis-java-depl") {
+local redis_server = redis.Server(params.name + "-redis");
+local redis_service = redis.Service(params.name + "-redis", redis_server.spec.template);
+
+local template = kube.Deployment(params.name) {
     spec+: {
       local my_spec = self,
       replicas: 1,
@@ -12,19 +15,25 @@ local template = kube.Deployment("redis-java-depl") {
           containers_+: {
             gb_fe: kube.Container("server") {
               resources: {},
-              args: [std.toString(port), "my-redis-svc"],
-              ports_+: { grpc: { containerPort: port } },
+              args: [
+                  params.port, redis_service.metadata.name,
+                  "-port", params.port,
+                  "-redis_service", redis_service.metadata.name,
+                  "-redis_port", std.toString(redis_service.spec.ports[0].port)],
+              ports_+: { grpc: { containerPort: std.parseInt(params.port) } },
 }}}}}};
 
 
 {
+  "redis.json": redis_server,
+  "redis-svc.json": redis_service,
   "prod-server.json": template { 
     spec+: {
       template+: {
         spec+: {
           containers_+: {
             gb_fe+: {
-              image: images["prod"],
+              image: params.images.prod,
   }}}}}},
   "staging-server.json": $["prod-server.json"] {
     spec+: {
@@ -32,7 +41,7 @@ local template = kube.Deployment("redis-java-depl") {
         spec+: {
           containers_+: {
             gb_fe+: {
-              image: images["staging"],
+              image: params.images.staging,
   }}}}}},
 
   "dev-server.json": $["staging-server.json"] { 
@@ -41,7 +50,7 @@ local template = kube.Deployment("redis-java-depl") {
         spec+: {
           containers_+: {
             gb_fe+: {
-              image: images["dev"],
+              image: params.images.dev,
   }}}}}},
   "local-server.json": $["dev-server.json"] { 
     spec+: {
@@ -49,11 +58,7 @@ local template = kube.Deployment("redis-java-depl") {
         spec+: {
           containers_+: {
             gb_fe+: {
-              image: images["local"],
+              # it seems .local means something different in jsonnet
+              image: params.images["local"],
   }}}}}},
-
-  
-  "service.json": kube.Service("grpc-java-redis") {
-    target_pod: $["prod-server.json"].spec.template,
-  }
 }

@@ -7,8 +7,8 @@ kube.Service(params.name) {
     selector: {"name": params.name},
     ports: [
       {
-        port: params.port,
-        targetPort: params.port,
+        port: std.parseInt(params.port),
+        targetPort: std.parseInt(params.port),
       },
     ],
     type: "ClusterIP",

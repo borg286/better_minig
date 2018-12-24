@@ -6,6 +6,11 @@ jsonnet_library(
     name = "utils",
     srcs = ["utils.libsonnet"],
 )
+jsonnet_library(
+    name = "redis",
+    srcs = ["redis.libsonnet"],
+    deps = ["@kube_jsonnet//:kube_lib"],
+)
 
 exports_files(
     srcs = ["utils.libsonnet", "redis.libsonnet", "service.jsonnet"]
