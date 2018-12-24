@@ -8,5 +8,5 @@ jsonnet_library(
 )
 
 exports_files(
-    srcs = ["utils.libsonnet", "redis.libsonnet"]
+    srcs = ["utils.libsonnet", "redis.libsonnet", "service.jsonnet"]
 )

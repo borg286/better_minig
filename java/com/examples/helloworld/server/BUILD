@@ -23,6 +23,8 @@ java_image(
     ],
 )
 NAME = "java"
+PORT = "50001"
+
 
 load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
 image_base = "%s/%s/hello-grpc-%s:"%(REGISTRY, PROJECT, NAME)
@@ -32,18 +34,24 @@ images = {
     DEV: image_base + "my_dev_sha",
     LOCAL: image_base + "local_tag"
 }
-PORT = "50001"
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 jsonnet_to_json(
     name = "json",
     src = "server.jsonnet",
-    outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json", "service.json"],
+    outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json"],
     multiple_outputs = 1,
-    deps = ["@kube_jsonnet//:kube_lib"],          
+    deps = ["@kube_jsonnet//:kube_lib"],
     ext_code = {"params": "%s"%{"images": images, "port": PORT, "name": NAME}},
 )
 
+jsonnet_to_json(
+    name = "service",
+    src = "//jsonnet:service.jsonnet",
+    outs = ["service.json"], 
+    deps = ["@kube_jsonnet//:kube_lib"],
+    ext_code = {"params": "%s"%{"name": NAME, "port": PORT}},
+)
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")

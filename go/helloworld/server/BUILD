@@ -12,29 +12,35 @@ go_image(
         "//proto/helloworld:go",
     ] + GRPC_COMPILE_DEPS,
 )
-
+NAME = "grpc-go"
+PORT = "50003"
 
 load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
-image_base = "%s/%s/hello-grpc-go:"%(REGISTRY, PROJECT)
+image_base = "%s/%s/hello-grpc-%s:"%(REGISTRY, PROJECT, NAME)
 images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
     DEV: image_base + "my_dev_sha",
     LOCAL: image_base + "local_tag"
 }
-PORT = "50003"
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 jsonnet_to_json(
     name = "json",
     src = "server.jsonnet",
-    outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json", "service.json"],
+    outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json"],
     multiple_outputs = 1,
-    ext_code = {"images": "%s"%images, "port": PORT},
-    ext_code_files = ["@kube_jsonnet//:kube_lib"],
-    ext_code_file_vars = ["kube"],
+    deps = ["@kube_jsonnet//:kube_lib"],
+    ext_code = {"params": "%s"%{"images": images, "port": PORT, "name": NAME}},
 )
 
+jsonnet_to_json(
+    name = "service",
+    src = "//jsonnet:service.jsonnet",
+    outs = ["service.json"], 
+    deps = ["@kube_jsonnet//:kube_lib"],
+    ext_code = {"params": "%s"%{"name": NAME, "port": PORT}},
+)
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")

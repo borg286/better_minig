@@ -1,9 +1,7 @@
+local kube = import 'external/kube_jsonnet/kube.libsonnet';
+local params = std.extVar("params");
 
-local kube = std.extVar("kube");
-local port = std.extVar("port");
-local images = std.extVar("images");
-
-local template = kube.Deployment("cc-depl") {
+local template = kube.Deployment(params.name) {
     spec+: {
       local my_spec = self,
       replicas: 1,
@@ -11,8 +9,8 @@ local template = kube.Deployment("cc-depl") {
         spec+: {
           containers_+: {
             gb_fe: kube.Container("server") {
-              args: [std.toString(port)],
-              ports_+: { grpc: { containerPort: port } },
+              args: [std.toString(params.port)],
+              ports_+: { grpc: { containerPort: params.port } },
 }}}}}};
 
 
@@ -23,7 +21,7 @@ local template = kube.Deployment("cc-depl") {
         spec+: {
           containers_+: {
             gb_fe+: {
-              image: images["prod"],
+              image: params.images.prod,
   }}}}}},
   "staging-server.json": $["prod-server.json"] {
     spec+: {
@@ -31,7 +29,7 @@ local template = kube.Deployment("cc-depl") {
         spec+: {
           containers_+: {
             gb_fe+: {
-              image: images["staging"],
+              image: params.images.staging,
   }}}}}},
 
   "dev-server.json": $["staging-server.json"] { 
@@ -40,7 +38,7 @@ local template = kube.Deployment("cc-depl") {
         spec+: {
           containers_+: {
             gb_fe+: {
-              image: images["dev"],
+              image: params.images.dev,
   }}}}}},
   "local-server.json": $["dev-server.json"] { 
     spec+: {
@@ -48,11 +46,11 @@ local template = kube.Deployment("cc-depl") {
         spec+: {
           containers_+: {
             gb_fe+: {
-              image: images["local"],
+              image: params.images["local"],
   }}}}}},
 
   
-  "service.json": kube.Service("grpc-cc") {
+  "service.json": kube.Service(params.name) {
     target_pod: $["prod-server.json"].spec.template,
   }
 }

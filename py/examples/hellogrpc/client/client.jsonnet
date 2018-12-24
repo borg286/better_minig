@@ -1,7 +1,8 @@
-
 local kube = import "external/kube_jsonnet/kube.libsonnet";
+local utils = import "jsonnet/utils.libsonnet";
 local backend_service = std.extVar("backend_service");
 local params = std.extVar("params");
+
 
 local template = std.prune(kube.Deployment(params.name) {
   spec+: {
@@ -10,7 +11,11 @@ local template = std.prune(kube.Deployment(params.name) {
         containers_+: {
           foo_cont: kube.Container("client") {
             image: "will be replaced",
-            args: [backend_service.metadata.name,  std.toString(backend_service.spec.ports[0].port)],
+            envObj:: {
+              PYTHONUNBUFFERED: '0',
+            },
+            env: utils.pairList(self.envObj),
+            args: [backend_service.metadata.name, std.toString(backend_service.spec.ports[0].port)],
           },
         },
       },
@@ -35,3 +40,5 @@ local template = std.prune(kube.Deployment(params.name) {
   },
 
 }
+
+

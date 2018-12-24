@@ -32,8 +32,12 @@ jsonnet_to_json(
     src = "client.jsonnet",
     outs = ["prod-client.json", "staging-client.json", "dev-client.json", "local-client.json"],
     multiple_outputs = 1,
-    deps = ["@kube_jsonnet//:kube_lib"],    
     ext_code = {"params": "%s"%{"images":images, "name": NAME}},
+    # deps may depend on other jsonnet_library targets so pull in their deps too.
+    deps = ["@kube_jsonnet//:kube_lib"],
+    # json files are flat so we only need a variable to point to its contents.
+    ext_code_file_vars = ["backend_service"],
+    ext_code_files = [BACKEND + ":service.json"],
 )
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")

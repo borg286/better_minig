@@ -1,4 +1,4 @@
-local kube = std.extVar("kube");
+local kube = import "external/kube_jsonnet/kube.libsonnet";
 
 {
   "prod.json": kube.Namespace("prod"),

@@ -6,8 +6,7 @@ jsonnet_to_json(
     src = "environments.jsonnet",
     outs = ["prod.json", "staging.json", "dev.json", "local.json"],
     multiple_outputs = 1,
-    ext_code_files = ["@kube_jsonnet//:kube_lib"],
-    ext_code_file_vars = ["kube"],
+    deps = ["@kube_jsonnet//:kube_lib"],
 )
 
 load("@k8s_object//:defaults.bzl", "k8s_object")
