@@ -153,13 +153,13 @@ k8s_objects(
 )
 k8s_objects(
   name = "staging-deep",
-  objects = [":staging-deployment", ":staging_service"],
+  objects = [":staging-shallow", ":staging_service"],
 )
 k8s_objects(
   name = "dev-deep",
-  objects = [":dev-deployment", ":dev_service"],
+  objects = [":dev-shallow", ":dev_service"],
 )
 k8s_objects(
   name = "local-deep",
-  objects = [":local-deployment", ":local_service"],
+  objects = [":local-shallow", ":local_service"],
 )

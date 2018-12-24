@@ -132,17 +132,17 @@ k8s_objects(
 # This server happens to not have any dependencies.
 k8s_objects(
   name = "prod-deep",
-  objects = [":prod-shallow", ":prod_service"],
+  objects = [":prod-shallow"],
 )
 k8s_objects(
   name = "staging-deep",
-  objects = [":staging-deployment", ":staging_service"],
+  objects = [":staging-shallow"],
 )
 k8s_objects(
   name = "dev-deep",
-  objects = [":dev-deployment", ":dev_service"],
+  objects = [":dev-shallow"],
 )
 k8s_objects(
   name = "local-deep",
-  objects = [":local-deployment", ":local_service"],
+  objects = [":local-shallow"],
 )
