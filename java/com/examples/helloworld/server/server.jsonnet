@@ -1,5 +1,5 @@
 
-local kube = std.extVar("kube");
+local kube = import 'external/kube_jsonnet/kube.libsonnet';
 local port = std.extVar("port");
 local images = std.extVar("images");
 

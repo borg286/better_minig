@@ -22,9 +22,10 @@ java_image(
         "@org_pubref_rules_protobuf//java:netty_runtime_deps",
     ],
 )
+NAME = "java"
 
 load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
-image_base = "%s/%s/hello-grpc-java:"%(REGISTRY, PROJECT)
+image_base = "%s/%s/hello-grpc-%s:"%(REGISTRY, PROJECT, NAME)
 images = {
     PROD: image_base + "my_prod_sha",
     STAGING: image_base + "my_staging_sha",
@@ -39,9 +40,8 @@ jsonnet_to_json(
     src = "server.jsonnet",
     outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json", "service.json"],
     multiple_outputs = 1,
-    ext_code = {"images": "%s"%images, "port": PORT},
-    ext_code_files = ["@kube_jsonnet//:kube_lib"],
-    ext_code_file_vars = ["kube"],
+    deps = ["@kube_jsonnet//:kube_lib"],          
+    ext_code = {"params": "%s"%{"images": images, "port": PORT, "name": NAME}},
 )
 
 
