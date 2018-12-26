@@ -8,3 +8,4 @@ PROD = "prod"
 STAGING = "staging"
 DEV = "dev"
 LOCAL = "local"
+ENVS = [PROD, STAGING, DEV, LOCAL]

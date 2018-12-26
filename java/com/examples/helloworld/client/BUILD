@@ -12,11 +12,11 @@ java_image(
     ],
 )
 NAME = "java-client"
-BACKEND = "//java/com/examples/grpc_redis"
+BACKEND = "//java/com/examples/helloworld/server"
 
 
 
-load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
+load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL", "ENVS")
 image_base = "%s/%s/hello-grpc-%s:"%(REGISTRY, PROJECT, NAME)
 
 images = {
@@ -27,42 +27,29 @@ images = {
 }
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
-jsonnet_to_json(
-    name = "json",
+[jsonnet_to_json(
+    name = "%s-json"%env,
     src = "client.jsonnet",
-    outs = ["prod-client.json", "staging-client.json", "dev-client.json", "local-client.json"],
-    multiple_outputs = 1,
-    ext_code = {"params": "%s"%{"images":images, "name": NAME}},
+    outs = ["%s-client.json"%env],
+    ext_code = {"params": "%s"%{"image":images[env], "name": NAME}},
     # deps may depend on other jsonnet_library targets so pull in their deps too.
     deps = ["@kube_jsonnet//:kube_lib"],
     # json files are flat so we only need a variable to point to its contents.
     ext_code_file_vars = ["backend_service"],
-    ext_code_files = [BACKEND + ":service.json"],
-)
+    ext_code_files = [BACKEND + ":%s-service.json"%env],
+) for env in ENVS]
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 load("@k8s_object//:defaults.bzl", "k8s_object")
 
 
-k8s_object(
-  name = "prod-client",
+[k8s_object(
+  name = "%s-client"%env,
   kind = "deployment",
-  template = ":prod-client.json",
+  template = ":%s-client.json"%env,
   namespace = PROD,
-)
-k8s_object(
-  name = "staging-client",
-  kind = "deployment",
-  template = ":staging-client.json",
-  namespace = STAGING,
-)
-k8s_object(
-  name = "dev-client",
-  kind = "deployment",
-  template = ":dev-client.json",
-  namespace = DEV,
-)
+) for env in [PROD, STAGING, DEV]]
 k8s_object(
   name = "local-client",
   kind = "deployment",
@@ -74,42 +61,17 @@ k8s_object(
 
 
 # Shallow targets only spin up this service and deployment
-k8s_objects(
-  name = "prod-shallow",
-  objects = [":prod-client"],
-)
-k8s_objects(
-  name = "staging-shallow",
-  objects = [":staging-client"],
-)
-k8s_objects(
-  name = "dev-shallow",
-  objects = [":dev-client"],
-)
-k8s_objects(
-  name = "local-shallow",
-  objects = [":local-client"],
-)
-
+[k8s_objects(
+  name = "%s-shallow"%env,
+  objects = [":%s-client"%env],
+) for env in ENVS]
 
 
 # Deep targets recursivly pull in all dependencies for sandbox/integration testing
-k8s_objects(
-  name = "prod-deep",
-  objects = [":prod-client", BACKEND + ":prod-deep"],
-)
-k8s_objects(
-  name = "staging-deep",
-  objects = [":staging-client", BACKEND + ":staging-deep"],
-)
-k8s_objects(
-  name = "dev-deep",
-  objects = [":dev-client", BACKEND + ":dev-deep"],
-)
-k8s_objects(
-  name = "local-deep",
-  objects = [":local-client", BACKEND + ":local-deep"],
-)
+[k8s_objects(
+  name = "%s-deep"%env,
+  objects = [":%s-client"%env, BACKEND + ":%s-deep"%env],
+) for env in ENVS]
 
 
 
