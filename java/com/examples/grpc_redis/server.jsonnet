@@ -2,9 +2,10 @@
 local kube = import 'external/kube_jsonnet/kube.libsonnet';
 local redis = import 'jsonnet/redis.libsonnet';
 local params = std.extVar("params");
+local ns = std.extVar("namespace");
 
-local redis_server = redis.Server(params.name + "-redis");
-local redis_service = redis.Service(params.name + "-redis", redis_server.spec.template);
+local redis_server = redis.Server(params.name + "-redis", ns);
+local redis_service = redis.Service(params.name + "-redis", redis_server.spec.template, ns);
 
 local template = kube.Deployment(params.name) {
     spec+: {

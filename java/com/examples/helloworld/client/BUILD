@@ -12,7 +12,7 @@ java_image(
     ],
 )
 NAME = "java-client"
-BACKEND = "//java/com/examples/helloworld/server"
+BACKEND = "//java/com/examples/grpc_redis"
 
 
 

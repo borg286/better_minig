@@ -45,7 +45,10 @@ jsonnet_to_json(
     outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json", "redis.json", "redis-svc.json"],
     multiple_outputs = 1,
     deps = ["@kube_jsonnet//:kube_lib", "//jsonnet:redis"],
-    ext_code = {"params": "%s"%{"images": images, "port": PORT, "name": NAME}},
+    ext_code = {
+        "params": "%s"%{"images": images, "port": PORT, "name": NAME}
+    },
+    ext_strs = {"namespace": LOCAL},
 )
 
 jsonnet_to_json(
