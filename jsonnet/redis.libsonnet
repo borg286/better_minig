@@ -13,14 +13,14 @@ local kube = import 'external/kube_jsonnet/kube.libsonnet';
           ports_+: { tcp: { containerPort: 6379 } },
           readinessProbe:{
             exec:{command:[
-              "sh", "-c", "redis-cli -h $(hostname) ping"
+              "sh", "-c", "redis-cli -h $(hostname) info"
             ]},
             initialDelaySeconds: 1,
             timeoutSeconds: 5
           },
           livenessProbe:{
             exec:{command:[
-              "sh", "-c", "redis-cli -h $(hostname) ping"
+              "sh", "-c", "redis-cli -h $(hostname) info"
             ]},
             initialDelaySeconds: 1,
             periodSeconds: 3,

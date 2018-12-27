@@ -45,8 +45,8 @@ docker_repositories()
 
 git_repository(
     name = "io_bazel_rules_k8s",
-    commit = "8537afcc8728e5ebfafa9b68462e54a98935d06b",
-    remote = "https://github.com/bazelbuild/rules_k8s.git",
+    commit = "91e175e8b500d6833f0db8fed6d8c3cc36f340b0",
+    remote = "https://github.com/borg286/rules_k8s.git",
 )
 
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")

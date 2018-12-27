@@ -29,7 +29,7 @@ java_image(
 NAME = "redis-grpc"
 PORT = "50001"
 
-load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
+load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL", "ENVS")
 image_base = "%s/%s/hello-grpc-%s:"%(REGISTRY, PROJECT, NAME)
 images = {
     PROD: image_base + "my_prod_sha",
@@ -39,130 +39,67 @@ images = {
 }
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
-jsonnet_to_json(
-    name = "json",
+
+[jsonnet_to_json(
+    name = "%s-json"%env,
     src = "server.jsonnet",
-    outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json", "redis.json", "redis-svc.json"],
+    outs = ["%s-server.json"%env, "%s-redis.json"%env, "%s-redis-svc.json"%env],
     multiple_outputs = 1,
     deps = ["@kube_jsonnet//:kube_lib", "//jsonnet:redis"],
-    ext_code = {
-        "params": "%s"%{"images": images, "port": PORT, "name": NAME}
-    },
-    ext_strs = {"namespace": LOCAL},
-)
+    ext_code = {"params": "%s"%{"image": images[env], "port": PORT, "name": NAME, "env":env, "envs":ENVS}},
+) for env in ENVS]
 
-jsonnet_to_json(
-    name = "service",
+[jsonnet_to_json(
+    name = "%s-service"%env,
     src = "//jsonnet:service.jsonnet",
-    outs = ["service.json"], 
+    outs = ["%s-service.json"%env], 
     deps = ["@kube_jsonnet//:kube_lib"],
-    ext_code = {"params": "%s"%{"name": NAME, "port": PORT}},
-)
+    ext_code = {"params": "%s"%{"name": NAME, "port": PORT, "env": env}},
+) for env in ENVS]
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 load("@k8s_object//:defaults.bzl", "k8s_object")
 
 
-k8s_object(
-  name = "prod_service",
+[k8s_object(
+  name = "%s_service"%env,
   kind = "service",
-  template = ":service.json",
-  namespace = PROD,
-)
-k8s_object(
-  name = "staging_service",
-  kind = "service",
-  template = ":service.json",
-  namespace = STAGING,
-)
-k8s_object(
-  name = "dev_service",
-  kind = "service",
-  template = ":service.json",
-  namespace = DEV,
-)
-k8s_object(
-  name = "local_service",
-  kind = "service",
-  template = ":service.json",
-  namespace = LOCAL,
-)
+  template = ":%s-service.json"%env,
+) for env in ENVS]
 
-k8s_object(
-  name = "prod-deployment",
+[k8s_object(
+  name = "%s-deployment"%env,
   kind = "deployment",
-  template = ":prod-server.json",
-  namespace = PROD,
-)
-k8s_object(
-  name = "staging-deployment",
-  kind = "deployment",
-  template = ":staging-server.json",
-  namespace = STAGING,
-)
-k8s_object(
-  name = "dev-deployment",
-  kind = "deployment",
-  template = ":dev-server.json",
-  namespace = DEV,
-)
+  template = ":%s-server.json"%env,
+) for env in [PROD, STAGING, DEV]]
 k8s_object(
   name = "local-deployment",
   kind = "deployment",
   # Only tell k8s_deploy to look for and push the docker image for a local run
   images = {images[LOCAL]: ":server-image"},
   template = ":local-server.json",
-  namespace = LOCAL,
 )
-k8s_object(
-  name = "local-redis",
-  kind = "deployment",
-  template = "redis.json",
-  namespace = LOCAL,
-)
-k8s_object(
-  name = "local-redis-svc",
-  kind = "service",
-  template = "redis-svc.json",
-  namespace = LOCAL,
-)
+[k8s_object(
+  name = "%s-redis"%env,
+  template = ":%s-redis.json"%env,
+) for env in ENVS]
+[k8s_object(
+  name = "%s-redis-svc"%env,
+  template = ":%s-redis-svc.json"%env,
+) for env in ENVS]
+
 
 # Shallow targets only spin up this service and deployment
-k8s_objects(
-  name = "prod-shallow",
-  objects = [":prod-deployment", ":prod_service"],
-)
-k8s_objects(
-  name = "staging-shallow",
-  objects = [":staging-deployment", ":staging_service"],
-)
-k8s_objects(
-  name = "dev-shallow",
-  objects = [":dev-deployment", ":dev_service"],
-)
-k8s_objects(
-  name = "local-shallow",
-  objects = [":local-deployment", ":local_service", ":local-redis", ":local-redis-svc"],
-)
-
+[k8s_objects(
+  name = "%s-shallow"%env,
+  objects = [target%env for target in [":%s-deployment", ":%s_service", ":%s-redis", ":%s-redis-svc"]],
+) for env in ENVS]
 
 
 # Deep targets recursivly pull in all dependencies for sandbox/integration testing
 # This server happens to not have any dependencies.
-k8s_objects(
-  name = "prod-deep",
-  objects = [":prod-shallow", ":prod_service"],
-)
-k8s_objects(
-  name = "staging-deep",
-  objects = [":staging-shallow", ":staging_service"],
-)
-k8s_objects(
-  name = "dev-deep",
-  objects = [":dev-shallow", ":dev_service"],
-)
-k8s_objects(
-  name = "local-deep",
-  objects = [":local-shallow", ":local_service"],
-)
+[k8s_objects(
+  name = "%s-deep"%env,
+  objects = [":%s-shallow"%env],
+) for env in ENVS]
