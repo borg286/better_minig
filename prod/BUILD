@@ -1,12 +1,14 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
+load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json", "jsonnet_library")
+load("//prod:cluster_consts.bzl","PROD", "STAGING", "DEV", "LOCAL", "ENVS")
 jsonnet_to_json(
-    name = "envs",
-    src = "environments.jsonnet",
-    outs = ["prod.json", "staging.json", "dev.json", "local.json"],
-    multiple_outputs = 1,
-    deps = ["@kube_jsonnet//:kube_lib"],
+  name = "envs",
+  src = "environments.jsonnet",
+  outs = ["prod.json", "staging.json", "dev.json", "local.json"],
+  multiple_outputs = 1,
+  deps = ["@kube_jsonnet//:kube_lib"],
+  ext_code = {"params": "%s"%{"envs": ENVS}},
 )
 
 load("@k8s_object//:defaults.bzl", "k8s_object")
@@ -31,4 +33,3 @@ k8s_object(
   kind = "namespace",
   template = ":local.json",
 )
-
