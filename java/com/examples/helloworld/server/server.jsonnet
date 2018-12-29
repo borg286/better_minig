@@ -1,20 +1,17 @@
 
 local kube = import 'external/kube_jsonnet/kube.libsonnet';
+local envs = import 'prod/envs.libsonnet';
 local params = std.extVar("params");
-local PROD = params.envs.PROD;
-local STAGING = params.envs.STAGING;
-local DEV = params.envs.DEV;
-local LOCAL = params.envs.LOCAL;
 
 local main_container = kube.Container("server") {
   // Environment specific values go in a map keyed by params.env,
   // one of which will be passed into params.env
-  local images = {
-    PROD: params.image_base + "prod_tag",
-    STAGING: params.image_base + "staging_tag",
-    DEV: params.image_base + "some_dev_tag",
-    LOCAL: params.local_image_name
-  },
+  local images = envs.toEnvironmentMap(
+    prod=params.image_base + "prod_tag",
+    staging=params.image_base + "staging_tag",
+    dev=params.image_base + "some_dev_tag",
+    myns=params.local_image_name
+  ),
   resources: {},
   image: images[params.env],
   ports_+: { grpc: { containerPort: std.parseInt(params.port) } },
@@ -22,6 +19,7 @@ local main_container = kube.Container("server") {
 };
 
 local deployment = kube.Deployment(params.name) {
+  metadata+: {namespace: envs.getName(params.env)},
   spec+: {
     replicas: 1,
     template+: {

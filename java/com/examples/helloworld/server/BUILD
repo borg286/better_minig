@@ -27,7 +27,7 @@ PORT = "50001"
 
 # Each environment gets its own image tag. We use the LOCAL image and tell rules_k8s to swap in
 # a locally built docker image, :server-image.
-load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "LOCAL", "ENVS")
+load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "MYNS", "ENVS")
 image_base = "%s/%s/hello-grpc-%s:"%(REGISTRY, PROJECT, NAME)
 LOCAL_IMAGE_NAME = image_base + ":this_tag_will_be_replaced"
 
@@ -40,7 +40,7 @@ load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
     name = "%s-json"%env,
     src = "server.jsonnet",
     outs = ["%s-server.json"%env],
-    deps = ["@kube_jsonnet//:kube_lib"],
+    deps = ["@kube_jsonnet//:kube_lib", "//prod:envs"],
     # stringify a python map (with arbitrary nesting) then let jsonnet parse into json map.
     ext_code = {"params": "%s"%{
         "image_base": image_base,
@@ -55,8 +55,12 @@ load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
     name = "%s-service"%env,
     src = "//jsonnet:service.jsonnet",
     outs = ["%s-service.json"%env], 
-    deps = ["@kube_jsonnet//:kube_lib"],
-    ext_code = {"params": "%s"%{"name": NAME, "port": PORT, "env": env}},
+    deps = ["@kube_jsonnet//:kube_lib", "//prod:envs"],
+    ext_code = {"params": "%s"%{
+        "name": NAME,
+        "port": PORT,
+        "env": env,
+    }},
 ) for env in ENVS]
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
@@ -76,7 +80,7 @@ load("@k8s_object//:defaults.bzl", "k8s_object")
   # 1. Build the image, 2. push it, 3. get the SHA1 then 4. replace the
   # LOCAL_IMAGE_NAME used in the json's container with a reference to
   # the locally built one by its SHA.
-  images = {LOCAL_IMAGE_NAME: ":server-image"} if env == LOCAL else {},
+  images = {LOCAL_IMAGE_NAME: ":server-image"} if env == MYNS else {},
 ) for env in ENVS]
 
 # Shallow targets only spin up this service and deployment

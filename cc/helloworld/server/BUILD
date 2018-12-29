@@ -15,120 +15,76 @@ cc_image(
 NAME = "grpc-cc"
 PORT = "50001"
 
-load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL")
+# Each environment gets its own image tag. We use the LOCAL image and tell rules_k8s to swap in
+# a locally built docker image, :server-image.
+load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "LOCAL", "ENVS")
 image_base = "%s/%s/hello-grpc-%s:"%(REGISTRY, PROJECT, NAME)
-images = {
-    PROD: image_base + "my_prod_sha",
-    STAGING: image_base + "my_staging_sha",
-    DEV: image_base + "my_dev_sha",
-    LOCAL: image_base + "local_tag"
-}
+LOCAL_IMAGE_NAME = image_base + ":this_tag_will_be_replaced"
 
+# Use jsonnet to produce json describing the main server deployment.
+# Pass in the image, port, job name, environment (namespace). These params
+# are refactored out so that we break a direct build link between compiling the server json
+# from the kubernetes service that clients consume.
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
-jsonnet_to_json(
-    name = "json",
+[jsonnet_to_json(
+    name = "%s-json"%env,
     src = "server.jsonnet",
-    outs = ["prod-server.json", "staging-server.json", "dev-server.json", "local-server.json", "service.json"],
-    multiple_outputs = 1,
+    outs = ["%s-server.json"%env],
     deps = ["@kube_jsonnet//:kube_lib"],
-    ext_code = {"params": "%s"%{"images": images, "port": PORT, "name": NAME}},
-)
+    # stringify a python map (with arbitrary nesting) then let jsonnet parse into json map.
+    ext_code = {"params": "%s"%{
+        "image_base": image_base,
+        "local_image_name": LOCAL_IMAGE_NAME,
+        "port": PORT,
+        "name": NAME,
+        "env": env,
+        "namespace_name": ENVS[env],
+    }},
+) for env in ENVS]
 
+[jsonnet_to_json(
+    name = "%s-service"%env,
+    src = "//jsonnet:service.jsonnet",
+    outs = ["%s-service.json"%env], 
+    deps = ["@kube_jsonnet//:kube_lib"],
+    ext_code = {"params": "%s"%{
+        "name": NAME,
+        "port": PORT,
+        "env": env,
+        "namespace_name": ENVS[env],
+    }},
+) for env in ENVS]
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 load("@k8s_object//:defaults.bzl", "k8s_object")
 
-
-k8s_object(
-  name = "prod_service",
+[k8s_object(
+  name = "%s_service"%env,
   kind = "service",
-  template = ":service.json",
-  namespace = PROD,
-)
-k8s_object(
-  name = "staging_service",
-  kind = "service",
-  template = ":service.json",
-  namespace = STAGING,
-)
-k8s_object(
-  name = "dev_service",
-  kind = "service",
-  template = ":service.json",
-  namespace = DEV,
-)
-k8s_object(
-  name = "local_service",
-  kind = "service",
-  template = ":service.json",
-  namespace = LOCAL,
-)
+  template = ":%s-service.json"%env,
+) for env in ENVS]
 
-k8s_object(
-  name = "prod-deployment",
-  kind = "deployment",
-  template = ":prod-server.json",
-  namespace = PROD,
-)
-k8s_object(
-  name = "staging-deployment",
-  kind = "deployment",
-  template = ":staging-server.json",
-  namespace = STAGING,
-)
-k8s_object(
-  name = "dev-deployment",
-  kind = "deployment",
-  template = ":dev-server.json",
-  namespace = DEV,
-)
-k8s_object(
-  name = "local-deployment",
-  kind = "deployment",
-  # Only tell k8s_deploy to look for and push the docker image for a local run
-  images = {images[LOCAL]: ":server-image"},
-  template = ":local-server.json",
-  namespace = LOCAL,
-)
-
-
+[k8s_deploy(
+  name = "%s-deployment"%env,
+  template = ":%s-server.json"%env,
+  # In the case of a local deployment tell rules_k8s to 
+  # 1. Build the image, 2. push it, 3. get the SHA1 then 4. replace the
+  # LOCAL_IMAGE_NAME used in the json's container with a reference to
+  # the locally built one by its SHA.
+  images = {LOCAL_IMAGE_NAME: ":server-image"} if env == LOCAL else {},
+) for env in ENVS]
 
 # Shallow targets only spin up this service and deployment
-k8s_objects(
-  name = "prod-shallow",
-  objects = [":prod-deployment", ":prod_service"],
-)
-k8s_objects(
-  name = "staging-shallow",
-  objects = [":staging-deployment", ":staging_service"],
-)
-k8s_objects(
-  name = "dev-shallow",
-  objects = [":dev-deployment", ":dev_service"],
-)
-k8s_objects(
-  name = "local-shallow",
-  objects = [":local-deployment", ":local_service"],
-)
-
+[k8s_objects(
+  name = "%s-shallow"%env,
+  objects = [":%s-deployment"%env, ":%s_service"%env],
+) for env in ENVS]
 
 
 # Deep targets recursivly pull in all dependencies for sandbox/integration testing
 # This server happens to not have any dependencies.
-k8s_objects(
-  name = "prod-deep",
-  objects = [":prod-shallow"],
-)
-k8s_objects(
-  name = "staging-deep",
-  objects = [":staging-shallow"],
-)
-k8s_objects(
-  name = "dev-deep",
-  objects = [":dev-shallow"],
-)
-k8s_objects(
-  name = "local-deep",
-  objects = [":local-shallow"],
-)
+[k8s_objects(
+  name = "%s-deep"%env,
+  objects = [":%s-shallow"%env],
+) for env in ENVS]

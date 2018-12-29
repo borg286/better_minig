@@ -15,28 +15,26 @@ NAME = "java-client"
 BACKEND = "//java/com/examples/helloworld/server"
 
 
-
-load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "PROD", "STAGING", "DEV", "LOCAL", "ENVS")
+load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "LOCAL", "ENVS")
 image_base = "%s/%s/hello-grpc-%s:"%(REGISTRY, PROJECT, NAME)
-
-images = {
-    PROD: image_base + "my_prod_sha",
-    STAGING: image_base + "my_staging_sha",
-    DEV: image_base + "my_dev_sha",
-    LOCAL: image_base + "local_tag"
-}
+LOCAL_IMAGE_NAME = image_base + ":this_tag_will_be_replaced"
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 [jsonnet_to_json(
     name = "%s-json"%env,
     src = "client.jsonnet",
     outs = ["%s-client.json"%env],
-    ext_code = {"params": "%s"%{"image":images[env], "name": NAME}},
-    # deps may depend on other jsonnet_library targets so pull in their deps too.
     deps = ["@kube_jsonnet//:kube_lib"],
     # json files are flat so we only need a variable to point to its contents.
     ext_code_file_vars = ["backend_service"],
     ext_code_files = [BACKEND + ":%s-service.json"%env],
+    ext_code = {"params": "%s"%{
+        "image_base": image_base,
+        "local_image_name": LOCAL_IMAGE_NAME,
+        "name": NAME,
+        "env": env,
+        "namespace_name": ENVS[env],
+    }},
 ) for env in ENVS]
 
 load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
@@ -44,20 +42,15 @@ load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 load("@k8s_object//:defaults.bzl", "k8s_object")
 
 
-[k8s_object(
+[k8s_deploy(
   name = "%s-client"%env,
-  kind = "deployment",
   template = ":%s-client.json"%env,
-  namespace = PROD,
-) for env in [PROD, STAGING, DEV]]
-k8s_object(
-  name = "local-client",
-  kind = "deployment",
-  # Only tell k8s_deploy to look for and push the docker image for a local run
-  images = {images[LOCAL]: ":client-image"},
-  template = ":local-client.json",
-  namespace = LOCAL,
-)
+  # In the case of a local deployment tell rules_k8s to
+  # 1. Build the image, 2. push it, 3. get the SHA1 then 4. replace the
+  # LOCAL_IMAGE_NAME used in the json's container with a reference to
+  # the locally built one by its SHA.
+  images = {LOCAL_IMAGE_NAME: ":server-image"} if env == LOCAL else {},
+) for env in ENVS]
 
 
 # Shallow targets only spin up this service and deployment
