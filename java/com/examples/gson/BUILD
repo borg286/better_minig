@@ -6,5 +6,5 @@ java_binary(
         "@com_google_code_gson//jar",
         "@com_google_guava_guava//jar",
     ],
-    visibility = ["//visibility:public"]
+    visibility = ["//visibility:public"],
 )

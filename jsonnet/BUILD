@@ -6,6 +6,7 @@ jsonnet_library(
     name = "utils",
     srcs = ["utils.libsonnet"],
 )
+
 jsonnet_library(
     name = "redis",
     srcs = ["redis.libsonnet"],
@@ -13,5 +14,9 @@ jsonnet_library(
 )
 
 exports_files(
-    srcs = ["utils.libsonnet", "redis.libsonnet", "service.jsonnet"]
+    srcs = [
+        "utils.libsonnet",
+        "redis.libsonnet",
+        "service.jsonnet",
+    ],
 )

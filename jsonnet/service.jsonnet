@@ -1,9 +1,10 @@
 
 local kube = import 'external/kube_jsonnet/kube.libsonnet';
+local envs = import 'prod/envs.libsonnet';
 local params = std.extVar("params");
 
 kube.Service(params.name) {
-  metadata+:{namespace:params.namespace_name},
+  metadata+:{namespace:envs.getName(params.env)},
   spec: {
     selector: {"name": params.name},
     ports: [

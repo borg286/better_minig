@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "hi",
+    srcs = ["main.go"],
+    importpath = "github.com/borg286/better_minig",
+    #deps = ["@gomodule_redigo//redis:go_default_library"],
+)
+
+go_library(
+    name = "go_default_library",
+    srcs = ["main.go"],
+    importpath = "github.com/borg286/better_minig/go/redis",
+    visibility = ["//visibility:private"],
+)
+
+go_binary(
+    name = "redis",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+)

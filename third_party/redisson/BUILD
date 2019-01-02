@@ -1,12 +1,12 @@
 package(default_visibility = ["//visibility:public"])
 
-licenses(["notice"]) 
+licenses(["notice"])
 
 java_library(
     name = "deps",
     runtime_deps = [
         "@org_redisson_redisson//jar",
-        "@org_pubref_rules_protobuf//java:netty_runtime_deps",
+        "@io_grpc_grpc_java//netty",
         "@io_netty_netty_transport_native_kqueue//jar",
         "@io_netty_netty_transport_native_epoll//jar",
         "@io_netty_netty_common//jar",
@@ -40,4 +40,3 @@ java_library(
         "@org_springframework_boot_spring_boot_actuator//jar",
     ],
 )
-

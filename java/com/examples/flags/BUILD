@@ -7,10 +7,14 @@ java_binary(
         "@com_google_guava_guava//jar",
     ],
     args = [
-        "--host", "localhost",
-        "--port", "8081",
-        "--dir", "www/",
-        "--dir", "resources/",
+        "--host",
+        "localhost",
+        "--port",
+        "8081",
+        "--dir",
+        "www/",
+        "--dir",
+        "resources/",
     ],
-    visibility = ["//visibility:public"]
+    visibility = ["//visibility:public"],
 )

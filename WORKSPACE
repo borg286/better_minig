@@ -1,79 +1,21 @@
-workspace(name = "brian")
+workspace(name = "fresh")
 
-# ================================================================
-# Imports for examples/
-# ================================================================
-
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 
-git_repository(
-    name = "org_pubref_rules_protobuf",
-    tag = "v0.8.2",
-    remote = "https://github.com/pubref/rules_protobuf.git",
-)
+#####################################################
+#########     Docker image bases          ###########
+#####################################################
 
-load("@org_pubref_rules_protobuf//protobuf:rules.bzl", "proto_repositories")
-
-proto_repositories()
-
-load("@org_pubref_rules_protobuf//cpp:rules.bzl", "cpp_proto_repositories")
-
-cpp_proto_repositories()
-
-load("@org_pubref_rules_protobuf//java:rules.bzl", "java_proto_repositories")
-
-java_proto_repositories()
-
-
-
-
-
-git_repository(
+# Download the rules_docker repository at release v0.6.0
+http_archive(
     name = "io_bazel_rules_docker",
-    commit = "27c94dec66c3c9fdb478c33994471c5bfc15b6eb",
-#    tag = "v0.4.0",
-    remote = "https://github.com/bazelbuild/rules_docker.git",
+    sha256 = "c0e9d27e6ca307e4ac0122d3dd1df001b9824373fb6fb8627cd2371068e51fef",
+    strip_prefix = "rules_docker-0.6.0",
+    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.6.0.tar.gz"],
 )
 
-load(
-    "@io_bazel_rules_docker//docker:docker.bzl",
-    "docker_repositories",
-)
-
-docker_repositories()
-
-git_repository(
-    name = "io_bazel_rules_k8s",
-    commit = "91e175e8b500d6833f0db8fed6d8c3cc36f340b0",
-    remote = "https://github.com/borg286/rules_k8s.git",
-)
-
-load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
-
-
-new_http_archive(
-    name = "mock",
-    build_file_content = """
-# Rename mock.py to __init__.py
-genrule(
-    name = "rename",
-    srcs = ["mock.py"],
-    outs = ["__init__.py"],
-    cmd = "cat $< >$@",
-)
-py_library(
-   name = "mock",
-   srcs = [":__init__.py"],
-   visibility = ["//visibility:public"],
-)""",
-    sha256 = "b839dd2d9c117c701430c149956918a423a9863b48b09c90e30a6013e7d2f44f",
-    strip_prefix = "mock-1.0.1/",
-    type = "tar.gz",
-    url = "https://pypi.python.org/packages/source/m/mock/mock-1.0.1.tar.gz",
-)
-
-# We use cc_image to build a sample service
 load(
     "@io_bazel_rules_docker//cc:image.bzl",
     _cc_image_repos = "repositories",
@@ -81,48 +23,6 @@ load(
 
 _cc_image_repos()
 
-# We use java_image to build a sample service
-load(
-    "@io_bazel_rules_docker//java:image.bzl",
-    _java_image_repos = "repositories",
-)
-
-_java_image_repos()
-
-git_repository(
-    name = "io_bazel_rules_go",
-    tag = "0.12.1",
-    remote = "https://github.com/bazelbuild/rules_go.git",
-)
-
-load(
-    "@io_bazel_rules_go//go:def.bzl",
-    "go_rules_dependencies", "go_register_toolchains",
-)
-
-go_rules_dependencies()
-go_register_toolchains()
-
-# We use go_image to build a sample service
-load(
-    "@io_bazel_rules_docker//go:image.bzl",
-    _go_image_repos = "repositories",
-)
-
-_go_image_repos()
-
-load("@org_pubref_rules_protobuf//go:rules.bzl", "go_proto_repositories")
-
-go_proto_repositories()
-
-git_repository(
-    name = "io_bazel_rules_python",
-    commit = "3e167dcfb17356c68588715ed324c5e9b76f391d",
-    remote = "https://github.com/bazelbuild/rules_python.git",
-)
-
-
-# We use py_image to build a sample service
 load(
     "@io_bazel_rules_docker//python:image.bzl",
     _py_image_repos = "repositories",
@@ -130,109 +30,132 @@ load(
 
 _py_image_repos()
 
-load("@org_pubref_rules_protobuf//python:rules.bzl", "py_proto_repositories")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-py_proto_repositories()
+# You *must* import the Go rules before setting up the go_image rules.
+git_repository(
+    name = "io_bazel_rules_go",
+    tag = "0.16.5",
+    remote = "https://github.com/bazelbuild/rules_go.git",
+)
+
+load(
+    "@io_bazel_rules_docker//go:image.bzl",
+    _go_image_repos = "repositories",
+)
+
+_go_image_repos()
+
+load(
+    "@io_bazel_rules_docker//java:image.bzl",
+    _java_image_repos = "repositories",
+)
+
+_java_image_repos()
+
+############################################################################
+##############                   GRPC                    ###################
+############################################################################
+
+http_archive(
+    name = "bazel_toolchains",
+    sha256 = "4329663fe6c523425ad4d3c989a8ac026b04e1acedeceb56aa4b190fa7f3973c",
+    strip_prefix = "bazel-toolchains-bc09b995c137df042bb80a395b73d7ce6f26afbe",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/bc09b995c137df042bb80a395b73d7ce6f26afbe.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/archive/bc09b995c137df042bb80a395b73d7ce6f26afbe.tar.gz",
+    ],
+)
 
 git_repository(
-    name = "io_bazel_rules_jsonnet",
-    commit = "f39f5fd8c9d8ae6273cd6d8610016a561d4d1c95",
-    remote = "https://github.com/bazelbuild/rules_jsonnet.git",
+    name = "build_stack_rules_proto",
+    commit = "e68d8b625dd6e59a64a25a7f1acd0f875b3d8b86",
+    remote = "https://github.com/stackb/rules_proto.git",
 )
 
-# pip imports for placing requrements into build targets and also separate docker layers
-load(
-    "@io_bazel_rules_python//python:pip.bzl",
-    "pip_import",
-    "pip_repositories",
+######  java   #######
+
+load("@build_stack_rules_proto//:deps.bzl",
+    "io_grpc_grpc_java",
 )
+
+io_grpc_grpc_java()
+
+load("@io_grpc_grpc_java//:repositories.bzl", "grpc_java_repositories")
+
+grpc_java_repositories(omit_com_google_protobuf = True)
+
+load("@build_stack_rules_proto//java:deps.bzl", "java_grpc_library")
+
+java_grpc_library()
+
+######   go    #######
+
+load("@build_stack_rules_proto//go:deps.bzl", "go_grpc_library")
+go_grpc_library()
+
+load("@io_bazel_rules_go//go:def.bzl",
+    "go_register_toolchains",
+    "go_rules_dependencies"
+)
+go_rules_dependencies()
+go_register_toolchains()
+
+
+#####   python   ####
+
+load("@build_stack_rules_proto//python:deps.bzl", "python_grpc_library")
+
+python_grpc_library()
+
+load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
+
+grpc_deps()
+
+load("@io_bazel_rules_python//python:pip.bzl", "pip_import", "pip_repositories")
+
 pip_repositories()
 
-
-# Create a requirement() rule capable of layering python dependencies
-# the libraries available to pass to requirement() is separate for each
-# requirement.txt file in the repo
-
-# requirements for general python code
+# For each python package that we want available in our requirements.txt file
+# we have a text file with contents of the line that would have gone into the
+# requirements.txt file.  We then do a pip_import of that file, and then
+# call load on the bzl file the import produces. This load will create a function
+# that can call to do the actual import.
 pip_import(
-    name = "py_pip",
+    name = "protobuf_py_deps",
+    requirements = "//py/requirements:protobuf.txt",
+)
+load("@protobuf_py_deps//:requirements.bzl", protobuf_pip_install = "pip_install")
+protobuf_pip_install()
+
+pip_import(
+    name = "grpc_py_deps",
     requirements = "//py:requirements.txt",
 )
-load(
-    "@py_pip//:requirements.bzl",
-    py_install = "pip_install",
-)
-py_install()
+load("@grpc_py_deps//:requirements.bzl", grpc_pip_install = "pip_install")
+grpc_pip_install()
 
 
-# node docker image support
-
-git_repository(
-    name = "build_bazel_rules_nodejs",
-    remote = "https://github.com/bazelbuild/rules_nodejs.git",
-    tag = "0.10.0", # check for the latest tag when you install
-)
-
-load("@build_bazel_rules_nodejs//:defs.bzl", "node_repositories", "npm_install")
-
-# For each package.json we create a docker layer
-# Download Node toolchain, etc.
-node_repositories(package_json = ["//nodejs/helloworld:package.json"])
-# Install your declared Node.js dependencies
-npm_install(
-    name = "nodejs_helloworld_npm",
-    package_json = "//nodejs/helloworld:package.json",
-)
+###### cpp   ########
 
 
+load("@build_stack_rules_proto//cpp:deps.bzl", "cpp_grpc_library")
 
-# general nodejs image reposo
+cpp_grpc_library()
 
-load(
-    "@io_bazel_rules_docker//nodejs:image.bzl",
-    _nodejs_image_repos = "repositories",
-)
+load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
 
-_nodejs_image_repos()
+grpc_deps()
 
 
-
-
-# We use jsonnet to configure the kubernetes deployments, services...
-
-load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_repositories")
-
-jsonnet_repositories()
-
-new_http_archive(
-    name = "kube_jsonnet",
-    url = "https://github.com/bitnami-labs/kube-libsonnet/archive/d30a2d7fd5c6686b5a2aeda914533530e26019e0.tar.gz",
-    strip_prefix = "kube-libsonnet-d30a2d7fd5c6686b5a2aeda914533530e26019e0",
-	build_file_content = """
-package(default_visibility = ["//visibility:public"])
-load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_library")
-
-jsonnet_library(
-    name = "kube_lib",
-    srcs = ["kube.libsonnet"],
-)
-""",
-)
-
-
-
-# ================================================================
-# Imports for maven jars
-# ================================================================
+#############################################################
+############          Maven imports           ###############
+#############################################################
 
 # Imported from Redisson dependencies
 maven_jar(
     name = "org_redisson_redisson",
     artifact = "org.redisson:redisson:3.7.3",
-)
-maven_jar(
-    name = "junit_junit",
-    artifact = "junit:junit:4.12",
 )
 
 maven_jar(
@@ -346,13 +269,6 @@ maven_jar(
 )
 
 
-# Apache Commons
-
-maven_jar(
-  name = "org_apache_commons_commons_lang3",
-  artifact = "org.apache.commons:commons-lang3:3.7",
-)
-
 # Flag library
 
 maven_jar(
@@ -367,6 +283,12 @@ maven_jar(
     artifact = "com.google.code.gson:gson:2.8.5",
 )
 
+# protobuf
+maven_jar(
+    name = "my_com_google_protobuf",
+    artifact = "com.google.protobuf:protobuf-java-util:3.6.1",
+)
+
 # Joda time
 maven_jar(
     name = "joda_time",
@@ -374,16 +296,17 @@ maven_jar(
 )
 
 
+#####################################################
+#########  Imports for go repos on github   #########
+#####################################################
 
-# ================================================================
-# Imports for go repos on github
-# ================================================================
-
-
-
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+http_archive(
+    name = "bazel_gazelle",
+    urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/0.16.0/bazel-gazelle-0.16.0.tar.gz"],
+    sha256 = "7949fc6cc17b5b191103e97481cf8889217263acf52e00b560683413af204fcb",
+)
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
 gazelle_dependencies()
-load("@bazel_gazelle//:deps.bzl", "go_repository")
 
 go_repository(
     name = "gomodule_redigo",
@@ -391,20 +314,27 @@ go_repository(
     importpath = "github.com/gomodule/redigo",
 )
 
+#####################################################
+#########     Kubernetes  Imports         ###########
+#####################################################
+
+git_repository(
+    name = "io_bazel_rules_k8s",
+    commit = "bc9a60a1250af9856c4797aebd79bb08bee370f5",
+    remote = "https://github.com/bazelbuild/rules_k8s.git",
+)
 
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
 
 k8s_repositories()
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
 
-# have this match the output from
-# kubectl config current-context
-load("//prod:cluster_consts.bzl", "CLUSTER", "PROJECT")
+load("//prod:cluster_consts.bzl", "REGISTRY", "CLUSTER", "PROJECT")
 
 k8s_defaults(
   name = "k8s_deploy",
   kind = "deployment",
-  image_chroot = "gcr.io/" + PROJECT + "/{BUILD_USER}",
+  #image_chroot = REGISTRY + "/" + PROJECT + "/{BUILD_USER}",
   cluster = CLUSTER,
 )
 
@@ -412,10 +342,35 @@ k8s_defaults(
   name = "k8s_object",
   cluster = CLUSTER,
 )
-k8s_defaults(
-  name = "k8s_job",
-  kind = "job",
-  image_chroot = "gcr.io/" + PROJECT + "/{BUILD_USER}",
-  cluster = CLUSTER,
+
+#############################################################
+############          Jsonnet                 ###############
+#############################################################
+
+# We use jsonnet to configure the kubernetes deployments, services...
+
+git_repository(
+    name = "io_bazel_rules_jsonnet",
+    commit = "f39f5fd8c9d8ae6273cd6d8610016a561d4d1c95",
+    remote = "https://github.com/bazelbuild/rules_jsonnet.git",
+)
+
+load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_repositories")
+
+jsonnet_repositories()
+
+http_archive(
+    name = "kube_jsonnet",
+    url = "https://github.com/bitnami-labs/kube-libsonnet/archive/7107df489817715d01b0c29088f4bbf5c4696aaa.tar.gz",
+    strip_prefix = "kube-libsonnet-7107df489817715d01b0c29088f4bbf5c4696aaa",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_library")
+
+jsonnet_library(
+    name = "kube_lib",
+    srcs = ["kube.libsonnet"],
+)
+""",
 )
 

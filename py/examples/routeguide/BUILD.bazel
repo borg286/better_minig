@@ -1,0 +1,18 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@build_stack_rules_proto//python:python_grpc_library.bzl", "py_grpc_library")
+
+py_grpc_library(
+    name = "routeguide",
+    deps = ["//proto/examples/routeguide:routeguide_proto"],
+)
+
+py_library(
+    name = "resources",
+    srcs = [
+        "resources.py",
+    ],
+    deps = [
+        ":routeguide",
+    ],
+)
