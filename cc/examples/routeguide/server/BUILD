@@ -13,7 +13,6 @@ cc_image(
 )
 
 NAME = "cc-routeguide"
-
 PORT = "50001"
 
 # Each environment gets its own image tag. We use the LOCAL image and tell rules_k8s to swap in

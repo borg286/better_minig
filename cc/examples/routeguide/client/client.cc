@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
   std::string db = routeguide::GetDbFileContent(argc, argv);
 
   std::string address("");
-  address.append(argc >= 2 ? argv[1] : "localhost");
+  address.append(argc >= 1 ? argv[1] : "localhost");
   address.append(":");
   address.append(argc >= 2 ? argv[2] : "50051");
 

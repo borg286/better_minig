@@ -167,8 +167,14 @@ class RouteGuideImpl final : public RouteGuide::Service {
   std::vector<Feature> feature_list_;
 };
 
-void RunServer(const std::string& db_path) {
-  std::string server_address("0.0.0.0:50051");
+void RunServer(const std::string& db_path, int argc, char** argv) {
+  std::string default_port("500051");
+  std::string server_address("0.0.0.0:");
+  if (argc > 1) {
+    server_address.append(argv[1]);
+  } else {
+    server_address.append(default_port);
+  }
   RouteGuideImpl service(db_path);
 
   ServerBuilder builder;
@@ -182,7 +188,7 @@ void RunServer(const std::string& db_path) {
 int main(int argc, char** argv) {
   // Expect only arg: --db_path=path/to/route_guide_db.json.
   std::string db = routeguide::GetDbFileContent(argc, argv);
-  RunServer(db);
+  RunServer(db, argc, argv);
 
   return 0;
 }
