@@ -15,7 +15,7 @@ local main_container = kube.Container("server") {
   resources: {},
   image: images[params.env],
   ports_+: { grpc: { containerPort: std.parseInt(params.port) } },
-  args: [std.toString(params.port)]
+  args: ["-port", std.toString(params.port)]
 };
 
 local deployment = kube.Deployment(params.name) {

@@ -15,7 +15,7 @@ local main_container = kube.Container("server") {
   ),
   resources: {},
   image: images[params.env],
-  args: [backend_service.metadata.name, std.toString(backend_service.spec.ports[0].port)],
+  args: ["-server_addr", "dns:///" + backend_service.metadata.name + ":" + std.toString(backend_service.spec.ports[0].port)],
 };
 
 local deployment = kube.Deployment(params.name) {
