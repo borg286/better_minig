@@ -17,7 +17,6 @@ java_image(
 )
 
 NAME = "java-grpc"
-
 PORT = "50001"
 
 # Each environment gets its own image tag. We use the LOCAL image and tell rules_k8s to swap in
@@ -26,7 +25,7 @@ load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "MYNS", "ENVS")
 
 image_base = "%s/%s/hello-grpc-%s:" % (REGISTRY, PROJECT, NAME)
 
-LOCAL_IMAGE_NAME = image_base + ":this_tag_will_be_replaced"
+LOCAL_IMAGE_NAME = image_base + "this_tag_will_be_replaced"
 
 # Use jsonnet to produce json describing the main server deployment.
 # Pass in the image, port, job name, environment (namespace). These params

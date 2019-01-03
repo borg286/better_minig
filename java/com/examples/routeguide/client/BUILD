@@ -22,7 +22,7 @@ load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "MYNS", "ENVS")
 
 image_base = "%s/%s/hello-grpc-%s:" % (REGISTRY, PROJECT, NAME)
 
-LOCAL_IMAGE_NAME = image_base + ":this_tag_will_be_replaced"
+LOCAL_IMAGE_NAME = image_base + "this_tag_will_be_replaced"
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 
@@ -45,11 +45,11 @@ load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
     }},
 ) for env in ENVS]
 
-load("@k8s_deploy//:defaults.bzl", "k8s_deploy")
+load("@k8s_job//:defaults.bzl", "k8s_job")
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 load("@k8s_object//:defaults.bzl", "k8s_object")
 
-[k8s_deploy(
+[k8s_job(
     name = "%s-client" % env,
     template = ":%s-client.json" % env,
     # In the case of a local deployment tell rules_k8s to

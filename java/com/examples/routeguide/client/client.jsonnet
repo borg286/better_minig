@@ -18,10 +18,10 @@ local main_container = kube.Container("server") {
   args: [backend_service.metadata.name, std.toString(backend_service.spec.ports[0].port)],
 };
 
-local deployment = kube.Deployment(params.name) {
+local job = kube.Job(params.name) {
   metadata+: {namespace: envs.getName(params.env)},
   spec+: {
-    replicas: 1,
+    selector: null,
     template+: {
       spec+: {
         containers_+: {
@@ -29,4 +29,4 @@ local deployment = kube.Deployment(params.name) {
 }}}}};
 
 
-deployment
+job

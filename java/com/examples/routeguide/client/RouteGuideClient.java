@@ -238,6 +238,7 @@ public class RouteGuideClient {
       }
     } catch (RuntimeException e) {
       // Cancel RPC
+      System.out.println("I got an error");
       requestObserver.onError(e);
       throw e;
     }
@@ -255,11 +256,12 @@ public class RouteGuideClient {
       features = RouteGuideUtil.parseFeatures(RouteGuideUtil.getDefaultFeaturesFile());
     } catch (IOException ex) {
       ex.printStackTrace();
+      System.exit(1);
       return;
     }
 
     String hostname = "localhost";
-    int port = 50051;
+    int port = 50052;
     if (args.length >= 2) {
       hostname = args[0];
       port = Integer.parseInt(args[1]);

@@ -46,7 +46,7 @@ load("//prod:cluster_consts.bzl", "REGISTRY", "PROJECT", "MYNS", "ENVS")
 
 image_base = "%s/%s/hello-grpc-%s:" % (REGISTRY, PROJECT, NAME)
 
-LOCAL_IMAGE_NAME = image_base + ":this_tag_will_be_replaced"
+LOCAL_IMAGE_NAME = image_base + "this_tag_will_be_replaced"
 
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 

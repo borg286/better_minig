@@ -334,7 +334,11 @@ load("//prod:cluster_consts.bzl", "REGISTRY", "CLUSTER", "PROJECT")
 k8s_defaults(
   name = "k8s_deploy",
   kind = "deployment",
-  #image_chroot = REGISTRY + "/" + PROJECT + "/{BUILD_USER}",
+  cluster = CLUSTER,
+)
+k8s_defaults(
+  name = "k8s_job",
+  kind = "job",
   cluster = CLUSTER,
 )
 
