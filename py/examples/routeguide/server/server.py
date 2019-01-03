@@ -16,7 +16,7 @@
 from concurrent import futures
 import time
 import math
-
+import sys
 import grpc
 
 # Recommend to the directory structure of client.runfiles to figure out the
@@ -119,8 +119,8 @@ def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     routeguide_pb2_grpc.add_RouteGuideServicer_to_server(
         RouteGuideServicer(), server)
-    port = '50051'
-    server.add_insecure_port('[::]:' + port)
+    port = sys.argv[1]
+    server.add_insecure_port('0.0.0.0:' + port)
     print("Python RouteGuide Server listing on :%s..." % port)
     server.start()
     try:
