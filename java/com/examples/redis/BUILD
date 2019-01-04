@@ -1,4 +1,3 @@
-package(default_visibility = ["//visibility:public"])
 
 java_library(
     name = "lib",
@@ -6,7 +5,6 @@ java_library(
     deps = [
         "@org_redisson_redisson//jar",
     ],
-    runtime_deps = ["//third_party/redisson:deps"],
 )
 
 java_binary(
