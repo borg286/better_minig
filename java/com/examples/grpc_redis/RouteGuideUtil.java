@@ -29,9 +29,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.redisson.api.RGeo;
+import org.redisson.api.GeoUnit;
 import org.redisson.api.GeoPosition;
 import org.redisson.api.RScoredSortedSet;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.RedisConnection;
 
 /**
  * Common utilities for the RouteGuide demo.
@@ -105,7 +107,7 @@ public class RouteGuideUtil {
       }
       // return to redis with the name of an element and ask for the position.
       // redisson returns a map of elements to positions. We only have 1 which should exit.
-      Map<String, GeoPosition> positions = geo.pos(nextElement);
+      Map<String, GeoPosition> positions = geo.radiusWithPosition(nextElement, 10, GeoUnit.METERS);
       GeoPosition position = positions.get(nextElement);
       Point location = getPoint(position.getLongitude(), position.getLatitude());
       return Feature.newBuilder().setName(nextElement).setLocation(location).build();

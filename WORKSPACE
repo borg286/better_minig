@@ -158,6 +158,26 @@ maven_jar(
     artifact = "org.redisson:redisson-all:3.10.0",
 )
 
+maven_jar(
+    name = "jedis",
+    artifact = "redis.clients:jedis:3.0.0"
+)
+
+maven_jar(
+    name = "org_slf4j_api",
+    artifact = "org.slf4j:slf4j-api:1.7.25"
+)
+
+maven_jar(
+    name = "org_slf4j_simple",
+    artifact = "org.slf4j:slf4j-simple:1.7.25"
+)
+
+
+maven_jar(
+    name = "org_apache_commons",
+    artifact = "org.apache.commons:commons-pool2:2.4.3"
+)
 
 # Flag library
 

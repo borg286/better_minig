@@ -155,18 +155,25 @@ public class RouteGuideServer {
       int right = max(request.getLo().getLongitude(), request.getHi().getLongitude());
       int top = max(request.getLo().getLatitude(), request.getHi().getLatitude());
       int bottom = min(request.getLo().getLatitude(), request.getHi().getLatitude());
-
-      /*for (Feature feature : features) {
-        if (!RouteGuideUtil.exists(feature)) {
-          continue;
-        }
-
-        int lat = feature.getLocation().getLatitude();
-        int lon = feature.getLocation().getLongitude();
-        if (lon >= left && lon <= right && lat >= bottom && lat <= top) {
-          responseObserver.onNext(feature);
-        }
-      }*/
+      Point center = Point.newBuilder()
+        .setLongitude((top + bottom)/2)
+        .setLatitude((left + right)/2)
+        .build();
+      double centerLatitude = RouteGuideUtil.getLatitude(center);
+      double centerLongitude = RouteGuideUtil.getLongitude(center);
+      int radius = calcDistance(request.getLo(), request.getHi())/2;  //in meters
+      Map<String, GeoPosition> features = geo.radiusWithPosition(
+        centerLongitude, centerLatitude, radius, GeoUnit.METERS);
+      for (Map.Entry<String, GeoPosition> entry : features.entrySet()){
+        Point location = RouteGuideUtil.getPoint(
+          entry.getValue().getLongitude(),
+          entry.getValue().getLatitude());
+        responseObserver.onNext(
+          Feature.newBuilder()
+          .setName(entry.getKey())
+          .setLocation(location)
+          .build());
+      }
       responseObserver.onCompleted();
     }
 
@@ -270,15 +277,12 @@ public class RouteGuideServer {
       String retName = "";
       Point.Builder retLocation = Point.newBuilder().mergeFrom(location);
       Map<String, GeoPosition> featuresWithPosition = geo.radiusWithPosition(
-        location.getLongitude(), location.getLatitude(), 10, GeoUnit.METERS);
-      if (featuresWithPosition.size() > 0) {
-        for (String featureName : featuresWithPosition.keySet()) {
-          retName = featureName;
-          GeoPosition position = featuresWithPosition.get(featureName);
-          retLocation.setLongitude((int) Math.round(position.getLongitude() * Math.pow(10, 7)));
-          retLocation.setLatitude((int) Math.round(position.getLatitude() * Math.pow(10, 7)));
-          break;
-        }
+        RouteGuideUtil.getLatitude(location), RouteGuideUtil.getLatitude(location), 1000, GeoUnit.METERS);
+      for (String featureName : featuresWithPosition.keySet()) {
+        retName = featureName;
+        GeoPosition position = featuresWithPosition.get(featureName);
+        RouteGuideUtil.getPoint(position.getLongitude(), position.getLatitude());
+        break;
       }
 
       return Feature.newBuilder().setName(retName).setLocation(retLocation.build()).build();

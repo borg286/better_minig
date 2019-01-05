@@ -13,9 +13,6 @@ java_image(
         "@build_stack_rules_proto//java:grpc_netty",
         "@org_redisson_redisson//jar",
     ],
-    runtime_deps = [
-        "//third_party/redisson:deps",
-    ],
 )
 
 NAME = "java-client"

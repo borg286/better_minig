@@ -41,6 +41,8 @@ import org.redisson.api.GeoUnit;
 import org.redisson.api.GeoPosition;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.redisson.client.RedisConnection;
+import org.redisson.client.RedisClient;
 
 /**
  * Sample client code that makes gRPC calls to the server.
@@ -270,6 +272,9 @@ public class RouteGuideClient {
     config.useSingleServer().setAddress("redis://" + args[2] + ":6379");
     RedissonClient redisson = Redisson.create(config);
     RouteGuideClient client = new RouteGuideClient(hostname, port, redisson);
+
+    /*RedisClient rawClient = new RedisClient(args[2], 6379);
+    RedisConnection conn = rawClient.connect();*/
     try {
       // Looking for a valid feature
       client.getFeature(409146138, -746188906);
@@ -291,6 +296,8 @@ public class RouteGuideClient {
       }
     } finally {
       client.shutdown();
+      /*conn.closeAsync();
+      rawClient.shutdown();*/
     }
   }
 
