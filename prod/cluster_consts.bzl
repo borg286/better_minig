@@ -1,5 +1,5 @@
 PROJECT = "fiery-orb-681"
-CLUSTER = "kubernetes"
+CLUSTER = "default"
 REGISTRY = "localhost:32000"
 
 PROD = "prod"

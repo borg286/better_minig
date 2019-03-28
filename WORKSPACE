@@ -58,19 +58,10 @@ _java_image_repos()
 ############################################################################
 
 http_archive(
-    name = "bazel_toolchains",
-    sha256 = "4329663fe6c523425ad4d3c989a8ac026b04e1acedeceb56aa4b190fa7f3973c",
-    strip_prefix = "bazel-toolchains-bc09b995c137df042bb80a395b73d7ce6f26afbe",
-    urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/bc09b995c137df042bb80a395b73d7ce6f26afbe.tar.gz",
-        "https://github.com/bazelbuild/bazel-toolchains/archive/bc09b995c137df042bb80a395b73d7ce6f26afbe.tar.gz",
-    ],
-)
-
-git_repository(
     name = "build_stack_rules_proto",
-    commit = "e68d8b625dd6e59a64a25a7f1acd0f875b3d8b86",
-    remote = "https://github.com/stackb/rules_proto.git",
+    urls = ["https://github.com/stackb/rules_proto/archive/91cbae9bd71a9c51406014b8b3c931652fb6e660.tar.gz"],
+    sha256 = "5474d1b83e24ec1a6db371033a27ff7aff412f2b23abba86fedd902330b61ee6",
+    strip_prefix = "rules_proto-91cbae9bd71a9c51406014b8b3c931652fb6e660",
 )
 
 ######  java   #######
