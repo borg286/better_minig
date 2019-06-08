@@ -1,6 +1,6 @@
 PROJECT = "fiery-orb-681"
-CLUSTER = "default"
-REGISTRY = "localhost:32000"
+CLUSTER = "microk8s-cluster"
+REGISTRY = "10.152.183.64:5000"
 
 PROD = "prod"
 STAGING = "staging"
