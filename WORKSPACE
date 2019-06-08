@@ -228,8 +228,8 @@ go_repository(
 
 git_repository(
     name = "io_bazel_rules_k8s",
-    commit = "16c002a8acc18010f4e0adbc74e6dde0bc84c649",
-    remote = "https://github.com/bazelbuild/rules_k8s.git",
+    commit = "9c09b601aa2eda9c97dc6822a2eee5821cdc07b5",
+    remote = "https://github.com/borg286/rules_k8s.git",
 )
 
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
