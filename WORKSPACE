@@ -3,6 +3,13 @@ workspace(name = "fresh")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+skylib_version = "0.8.0"
+http_archive(
+    name = "bazel_skylib",
+    type = "tar.gz",
+    url = "https://github.com/bazelbuild/bazel-skylib/releases/download/{}/bazel-skylib.{}.tar.gz".format (skylib_version, skylib_version),
+    sha256 = "2ef429f5d7ce7111263289644d233707dba35e39696377ebab8b0bc701f7818e",
+)
 
 #####################################################
 #########     Docker image bases          ###########
@@ -11,9 +18,9 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # Download the rules_docker repository at release v0.6.0
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "c0e9d27e6ca307e4ac0122d3dd1df001b9824373fb6fb8627cd2371068e51fef",
-    strip_prefix = "rules_docker-0.6.0",
-    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.6.0.tar.gz"],
+    sha256 = "aed1c249d4ec8f703edddf35cbe9dfaca0b5f5ea6e4cd9e83e99f3b0d1136c3d",
+    strip_prefix = "rules_docker-0.7.0",
+    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.7.0.tar.gz"],
 )
 
 load(
@@ -59,9 +66,9 @@ _java_image_repos()
 
 http_archive(
     name = "build_stack_rules_proto",
-    urls = ["https://github.com/stackb/rules_proto/archive/91cbae9bd71a9c51406014b8b3c931652fb6e660.tar.gz"],
-    sha256 = "5474d1b83e24ec1a6db371033a27ff7aff412f2b23abba86fedd902330b61ee6",
-    strip_prefix = "rules_proto-91cbae9bd71a9c51406014b8b3c931652fb6e660",
+    urls = ["https://github.com/stackb/rules_proto/archive/b93b544f851fdcd3fc5c3d47aee3b7ca158a8841.tar.gz"],
+    sha256 = "c62f0b442e82a6152fcd5b1c0b7c4028233a9e314078952b6b04253421d56d61",
+    strip_prefix = "rules_proto-b93b544f851fdcd3fc5c3d47aee3b7ca158a8841",
 )
 
 ######  java   #######
@@ -221,26 +228,25 @@ go_repository(
 
 git_repository(
     name = "io_bazel_rules_k8s",
-    commit = "bc9a60a1250af9856c4797aebd79bb08bee370f5",
-    remote = "https://github.com/bazelbuild/rules_k8s.git",
+    commit = "9c09b601aa2eda9c97dc6822a2eee5821cdc07b5",
+    remote = "https://github.com/borg286/rules_k8s.git",
 )
 
-load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
-
-k8s_repositories()
-load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
-
 load("//prod:cluster_consts.bzl", "REGISTRY", "CLUSTER", "PROJECT")
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
+k8s_repositories()
+
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
 
 k8s_defaults(
   name = "k8s_deploy",
-  kind = "deployment",
   cluster = CLUSTER,
+  kind = "deployment",
 )
 k8s_defaults(
   name = "k8s_job",
-  kind = "job",
   cluster = CLUSTER,
+  kind = "job",
 )
 
 k8s_defaults(
