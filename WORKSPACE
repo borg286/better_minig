@@ -232,22 +232,21 @@ git_repository(
     remote = "https://github.com/borg286/rules_k8s.git",
 )
 
-load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
-
-k8s_repositories()
-load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
-
 load("//prod:cluster_consts.bzl", "REGISTRY", "CLUSTER", "PROJECT")
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
+k8s_repositories()
+
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_defaults")
 
 k8s_defaults(
   name = "k8s_deploy",
-  kind = "deployment",
   cluster = CLUSTER,
+  kind = "deployment",
 )
 k8s_defaults(
   name = "k8s_job",
-  kind = "job",
   cluster = CLUSTER,
+  kind = "job",
 )
 
 k8s_defaults(

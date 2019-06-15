@@ -1,6 +1,7 @@
 PROJECT = "fiery-orb-681"
-CLUSTER = "microk8s-cluster"
-REGISTRY = "10.152.183.64:5000"
+KUBECONFIG = "/etc/rancher/k3s.yaml"
+CLUSTER = "default"
+REGISTRY = "localhost:32000"
 
 PROD = "prod"
 STAGING = "staging"
