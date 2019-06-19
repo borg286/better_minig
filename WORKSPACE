@@ -228,7 +228,7 @@ go_repository(
 
 git_repository(
     name = "io_bazel_rules_k8s",
-    commit = "9c09b601aa2eda9c97dc6822a2eee5821cdc07b5",
+    commit = "57b54afe0e9e774be284f9f5d550c00abf5d385b",
     remote = "https://github.com/borg286/rules_k8s.git",
 )
 

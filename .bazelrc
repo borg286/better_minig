@@ -1,1 +1,1 @@
-build --action_env=KUBECONFIG --incompatible_depset_union=false --action_env=USER
+build --incompatible_depset_union=false --action_env=USER

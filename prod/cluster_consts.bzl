@@ -1,5 +1,4 @@
 PROJECT = "fiery-orb-681"
-KUBECONFIG = "/etc/rancher/k3s.yaml"
 CLUSTER = "default"
 REGISTRY = "localhost:32000"
 
