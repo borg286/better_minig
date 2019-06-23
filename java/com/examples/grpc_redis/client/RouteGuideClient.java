@@ -281,12 +281,14 @@ public class RouteGuideClient {
 
       // Feature missing.
       client.getFeature(0, 0);
-
-      // Looking for features between 40, -75 and 42, -73.
-      client.listFeatures(400000000, -750000000, 420000000, -730000000);
+      for (int i=0; i < Integer.parseInt(args[3]); i++) {
+        // Looking for features between 40, -75 and 42, -73.
+        client.listFeatures(400000000, -750000000, 420000000, -730000000);
+        Thread.sleep(client.random.nextInt(1000) + 1500);
+      }
 
       // Record a few randomly selected points from the features file.
-      client.recordRoute(RouteGuideUtil.featureIterator(redisson), Integer.parseInt(args[3]));
+      client.recordRoute(RouteGuideUtil.featureIterator(redisson), 10);
 
       // Send and receive some notes.
       CountDownLatch finishLatch = client.routeChat();
