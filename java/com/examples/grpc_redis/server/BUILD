@@ -37,13 +37,12 @@ load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
 [jsonnet_to_json(
     name = "%s-json" % env,
     src = "server.jsonnet",
-    outs = ["%s-server.json" % env, "%s-redis.json" % env, "%s-redis-svc.json" % env],
+    outs = ["%s-server.json" % env],
     multiple_outputs = True,
     deps = [
         "@kube_jsonnet//:kube_lib",
         "//prod:envs",
         "//jsonnet:utils",
-        "//jsonnet:redis"
     ],
     # stringify a python map (with arbitrary nesting) then let jsonnet parse into json map.
     ext_code = {"params": "%s" % {
@@ -53,6 +52,8 @@ load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
         "name": NAME,
         "env": env,
     }},
+    ext_code_file_vars = ["redis"],
+    ext_code_files = ["//prod/redis:grpc-redis-%s-svc.json" % env],
     # The client uses redis directly to get an iterator over features.
     visibility = ["//java/com/examples/grpc_redis/client:__subpackages__"],
 ) for env in ENVS]
@@ -94,24 +95,12 @@ load("@k8s_object//:defaults.bzl", "k8s_object")
     images = {LOCAL_IMAGE_NAME: ":server-image"} if (env == MYNS) else {},
 ) for env in ENVS]
 
-[k8s_object(
-    name = "%s_redis" % env,
-    template = ":%s-redis.json" % env,
-) for env in ENVS]
-
-[k8s_object(
-    name = "%s_redis_svc" % env,
-    template = ":%s-redis-svc.json" % env,
-) for env in ENVS]
-
 # Shallow targets only spin up this service and deployment
 [k8s_objects(
     name = "%s-shallow" % env,
     objects = [
-        ":%s-deployment" % env,
-        ":%s_service" % env,
-        ":%s_redis" % env,
-        ":%s_redis_svc" % env,
+      ":%s-deployment" % env,
+      ":%s_service" % env,
     ],
 ) for env in ENVS]
 
@@ -119,6 +108,9 @@ load("@k8s_object//:defaults.bzl", "k8s_object")
 # This server happens to not have any dependencies.
 [k8s_objects(
     name = "%s-deep" % env,
-    objects = [":%s-shallow" % env],
+    objects = [
+      ":%s-shallow" % env,
+      "//prod/redis:grpc-redis-%s" % env,
+    ],
     visibility = ["//visibility:public"],
 ) for env in ENVS]

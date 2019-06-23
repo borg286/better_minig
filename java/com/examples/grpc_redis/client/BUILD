@@ -37,7 +37,7 @@ load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_to_json")
     ],
     # json files are flat so we only need a variable to point to its contents.
     ext_code_file_vars = ["backend_service", "redis_service"],
-    ext_code_files = [BACKEND + ":%s-service.json" % env, BACKEND + ":%s-redis-svc.json" % env],
+    ext_code_files = [BACKEND + ":%s-service.json" % env, "//prod/redis:grpc-redis-%s-svc.json" % env],
     ext_code = {"params": "%s" % {
         "image_base": image_base,
         "local_image_name": LOCAL_IMAGE_NAME,

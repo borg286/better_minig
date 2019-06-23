@@ -1,6 +1,6 @@
 PROJECT = "fiery-orb-681"
-CLUSTER = "default"
-REGISTRY = "localhost:32000"
+CLUSTER = "dind"
+REGISTRY = "gcr.io"
 
 PROD = "prod"
 STAGING = "staging"
