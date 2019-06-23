@@ -16,7 +16,12 @@ local main_container = kube.Container("server") {
   ),
   resources: {},
   image: images[params.env],
-  args: [backend_service.metadata.name, std.toString(backend_service.spec.ports[0].port), redis_service.metadata.name],
+  args: [
+    backend_service.metadata.name,
+    std.toString(backend_service.spec.ports[0].port),
+    redis_service.metadata.name,
+    "100000",
+  ],
 };
 
 local deployment = kube.Deployment(params.name) {

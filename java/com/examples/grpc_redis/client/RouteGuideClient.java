@@ -182,7 +182,7 @@ public class RouteGuideClient {
             RouteGuideUtil.getLongitude(point));
         requestObserver.onNext(point);
         // Sleep for a bit before sending the next one.
-        Thread.sleep(random.nextInt(1000) + 500);
+        Thread.sleep(random.nextInt(1000) + 1500);
         if (finishLatch.getCount() == 0) {
           // RPC completed or errored before we finished sending.
           // Sending further requests won't error, but they will just be thrown away.
@@ -286,7 +286,7 @@ public class RouteGuideClient {
       client.listFeatures(400000000, -750000000, 420000000, -730000000);
 
       // Record a few randomly selected points from the features file.
-      client.recordRoute(RouteGuideUtil.featureIterator(redisson), 10);
+      client.recordRoute(RouteGuideUtil.featureIterator(redisson), Integer.parseInt(args[3]));
 
       // Send and receive some notes.
       CountDownLatch finishLatch = client.routeChat();
