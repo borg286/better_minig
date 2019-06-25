@@ -1,0 +1,45 @@
+package(default_visibility = ["//visibility:public"])
+
+
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load(":redis.bzl", "redis")
+load("//prod:cluster_consts.bzl", "ENVS")
+
+
+
+[redis(
+  name = "grpc-redis",
+  env = env,
+) for env in ENVS]
+
+
+
+
+
+
+
+
+
+
+
+
+go_library(
+    name = "bootstrap",
+    srcs = ["main.go"],
+    importpath = "github.com/borg286/prod/redis",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@gomodule_redigo//redis:go_default_library",
+    ],
+)
+
+load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+
+
+go_image(
+    name = "bootstrap-image",
+    embed = [":bootstrap"],
+    visibility = ["//visibility:public"],
+)
+
+
