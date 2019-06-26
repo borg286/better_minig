@@ -32,11 +32,11 @@ local redis = {
       tcp: { containerPort: 6379 },
       gossip: {containerPort: 16379},
     },
-    command: ["redis-server"],
-    args: ["/conf/redis.conf"],
+    command: ["/bin/bash"],
+    args: ["-c", "cp /usr/local/bin/redis-cli /share/redis-cli && redis-server /conf/redis.conf"],
     readinessProbe:{
       exec:{command:[
-        "sh", "-c", "echo hi || timeout 1 redis-cli -h $(hostname) cluster info | grep 'cluster_state:ok'",
+        "sh", "-c", "[ -s /share/lock ] || timeout 1 redis-cli -h $(hostname) cluster info | grep 'cluster_state:ok'",
       ]},
       initialDelaySeconds: 1,
       timeoutSeconds: 5
@@ -54,6 +54,7 @@ local redis = {
     },
     volumeMounts_+: {
       config_vol: {mountPath: "/conf"},
+      shared_vol: {mountPath: "/share"},    
     }
   },
   sidecar: kube.Container("sidecar") {
@@ -64,6 +65,9 @@ local redis = {
       POD_NAME: kube.FieldRef("metadata.name"),
       BASE: name,
       POD_IP: kube.FieldRef("status.podIP"),
+    },
+    volumeMounts_+: {
+      shared_vol: {mountPath: "/share"},
     },
   },
   statefulset: kube.StatefulSet(name) {
@@ -79,6 +83,7 @@ local redis = {
           },
           volumes_+: {
             config_vol: kube.ConfigMapVolume($.redis_conf_map),
+            shared_vol: kube.EmptyDirVolume(),
           },
         },
       },
