@@ -285,3 +285,26 @@ jsonnet_library(
 """,
 )
 
+
+
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+http_file(
+    name = "storage_deployment",
+    urls = ["https://raw.githubusercontent.com/MaZderMind/hostpath-provisioner/master/manifests/deployment.yaml"],
+    sha256 = "336e7700d086a124e25623f001bf65af366ef9801637a28a56401a786bab824e",
+    downloaded_file_path = "deployment.yaml",
+)
+http_file(
+    name = "storage_rbac",
+    urls = ["https://raw.githubusercontent.com/MaZderMind/hostpath-provisioner/master/manifests/rbac.yaml"],
+    sha256 = "1974787bf11272cfdac28885b863dfa885afd5134fe5a187a6a34b6fe0e09dba",
+    downloaded_file_path = "rbac.yaml",
+)
+http_file(
+    name = "storage_storageclass",
+    urls = ["https://raw.githubusercontent.com/MaZderMind/hostpath-provisioner/master/manifests/storageclass.yaml"],
+    sha256 = "472c26dd70bfbd92db890f1f7d5f68474b2388864f60fcd2c05f1aa2a0737467",
+    downloaded_file_path = "storageclass.yaml"
+)
+

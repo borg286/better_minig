@@ -22,6 +22,15 @@ syslog-enabled no
 syslog-facility local0
 tcp-backlog 2048
 cluster-enabled yes
+dbfilename dump.rdb
+dir /data
+';
+
+local start = '
+cp /usr/local/bin/redis-cli /share/redis-cli
+cp /conf/redis.conf /tmp/redis.conf
+echo "cluster-announce-ip $POD_IP" >> /tmp/redis.conf
+redis-server /tmp/redis.conf
 ';
 
 local redis = {
@@ -33,10 +42,10 @@ local redis = {
       gossip: {containerPort: 16379},
     },
     command: ["/bin/bash"],
-    args: ["-c", "cp /usr/local/bin/redis-cli /share/redis-cli && redis-server /conf/redis.conf"],
+    args: ["-c", start],
     readinessProbe:{
       exec:{command:[
-        "sh", "-c", "[ -s /share/lock ] || timeout 1 redis-cli -h $(hostname) cluster info | grep 'cluster_state:ok'",
+        "sh", "-c", "timeout 1 redis-cli -h $(hostname) cluster info | grep 'cluster_state:ok'",
       ]},
       initialDelaySeconds: 1,
       timeoutSeconds: 5
@@ -50,11 +59,14 @@ local redis = {
     },
     env_: {
       POD_NAME: kube.FieldRef("metadata.name"),
+      POD_NAMESPACE: kube.FieldRef("metadata.namespace"),
+      POD_IP: kube.FieldRef("status.podIP"),
       BASE: name,
     },
     volumeMounts_+: {
       config_vol: {mountPath: "/conf"},
-      shared_vol: {mountPath: "/share"},    
+      shared_vol: {mountPath: "/share"},
+      name: {mountPath: "/data"},    
     }
   },
   sidecar: kube.Container("sidecar") {
@@ -63,6 +75,7 @@ local redis = {
     ports_+: { tcp: { containerPort: 8080 } },
     env_: {
       POD_NAME: kube.FieldRef("metadata.name"),
+      POD_NAMESPACE: kube.FieldRef("metadata.namespace"),
       BASE: name,
       POD_IP: kube.FieldRef("status.podIP"),
     },
@@ -85,6 +98,13 @@ local redis = {
             config_vol: kube.ConfigMapVolume($.redis_conf_map),
             shared_vol: kube.EmptyDirVolume(),
           },
+        },
+      },
+      volumeClaimTemplates_+: {
+        name: {
+          storage: "1Gi",
+          metadata+: {namespace: envs.getName(params.env)},
+          spec+: {storageClassName: "hostpath"}
         },
       },
     },
