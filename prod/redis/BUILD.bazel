@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 load(":redis.bzl", "redis")
 load("//prod:cluster_consts.bzl", "ENVS")
 
@@ -31,6 +31,12 @@ go_library(
     deps = [
         "@gomodule_redigo//redis:go_default_library",
     ],
+)
+
+go_test(
+    name = "bootstrap_test",
+    srcs = ["main_test.go"],
+    deps = [":bootstrap"],
 )
 
 load("@io_bazel_rules_docker//go:image.bzl", "go_image")

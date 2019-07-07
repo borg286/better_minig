@@ -69,8 +69,22 @@ local redis = {
       name: {mountPath: "/data"},    
     }
   },
+  prestart: kube.Container("prestart") {
+    image: images[params.env],
+    args: ["prestart"],
+    env_: {
+      POD_NAME: kube.FieldRef("metadata.name"),
+      POD_NAMESPACE: kube.FieldRef("metadata.namespace"),
+      BASE: name,
+      POD_IP: kube.FieldRef("status.podIP"),
+    },
+    volumeMounts_+: {
+      name: {mountPath: "/data"},
+    },
+  },
   sidecar: kube.Container("sidecar") {
     image: images[params.env],
+    args: ["sidecar"],
     resources: {},
     ports_+: { tcp: { containerPort: 8080 } },
     env_: {
@@ -90,6 +104,9 @@ local redis = {
       template+: {
         spec+: {
           default_container: "redis",
+          initContainers_: {
+            "prestart": $.prestart,
+          },
           containers_+: {
             "sidecar": $.sidecar,
             "redis": $.redis_container,
@@ -117,6 +134,8 @@ local redis = {
   },
   service: kube.Service(name) {
     metadata+:{namespace: envs.getName(params.env)},
+    // Make this a headless service so DNS lookups return pod IPs
+    spec +:{clusterIP:'None'},
     target_pod: $.statefulset.spec.template,
   },
 };
