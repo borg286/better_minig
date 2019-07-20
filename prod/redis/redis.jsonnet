@@ -95,12 +95,13 @@ local redis = {
     },
     volumeMounts_+: {
       shared_vol: {mountPath: "/share"},
+      name: {mountPath: "/data"},
     },
   },
   statefulset: kube.StatefulSet(name) {
     metadata+:{namespace: envs.getName(params.env)},
     spec+: {
-      replicas: 2,
+      replicas: 6,
       template+: {
         spec+: {
           default_container: "redis",
@@ -121,7 +122,7 @@ local redis = {
         name: {
           storage: "1Gi",
           metadata+: {namespace: envs.getName(params.env)},
-          spec+: {storageClassName: "hostpath"}
+          //spec+: {storageClassName: "hostpath"}
         },
       },
     },

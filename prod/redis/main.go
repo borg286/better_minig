@@ -69,7 +69,7 @@ func (s Status) ShouldFlushAndRestart() bool {
       // my nodes.conf aligns with the root's view
       return false
     } else {
-      // Root is treated as an authority on the state of the cluster.
+      // Root is treated as an authority on the state of the cluster. 
       // As a consequence, if root is messed up and this task undergoes an upgrade, all data is thrown out
       return true
     }
@@ -83,13 +83,14 @@ func (s Status) ShouldReplicateRoot(debug bool) bool {
     return false
   }
   if debug {
-    fmt.Println("===============")
-    fmt.Println("State", s)
-    fmt.Println("MyView", *s.View)
-    fmt.Println("RootView", *s.RootView)
-    fmt.Println("My node", s.View.Nodes[s.ID])
+    log.Println("================")
+    log.Println("State", s)
+    log.Println("MyView", *s.View)
+    log.Println("RootView", *s.RootView)
+    log.Println("My node", s.View.Nodes[s.ID])
   }
   if !s.RootView.ClusterOk {
+    // Another check we can do is to verify that the DNS lookup has as many masters as the root says the size of the cluster is (namely masters)
     return false
   }
 
@@ -164,13 +165,19 @@ func ParseNode(line string) (*Node, bool) {
 func fixCluster(c redis.Conn) {
   clusterInfo, err := redis.String(c.Do("CLUSTER", "INFO"))
   if err != nil {
-    fmt.Println("Unable to fetch cluster info")
+    log.Println("Unable to fetch cluster info")
     return
   }
-  fmt.Println(clusterInfo)
+  log.Println(clusterInfo)
+  clusterNodes, err := redis.String(c.Do("CLUSTER", "NODES"))
+  if err != nil {
+    log.Println("Unable to fetch cluster nodes")
+    return
+  }
+  log.Println(clusterNodes)
   // TODO: I removed grep for cluster_state:ok. Put it back
   if 0 < len(strings.Split(clusterInfo, "\n")) {
-    fmt.Println("Attempting to fix the cluster")
+    log.Println("Attempting to fix the cluster")
     cmd := exec.Command("/share/redis-cli", "--cluster", "fix", "127.0.0.1:6379")
     cmd.Stdin = strings.NewReader("yes")
     var out bytes.Buffer
@@ -178,8 +185,8 @@ func fixCluster(c redis.Conn) {
     cmd.Stdout = &out
     cmd.Stderr = &stderr
     cmd.Run()
-    fmt.Println("out:" + out.String())
-    fmt.Println("err:" + stderr.String())
+    log.Println("out:" + out.String())
+    log.Println("err:" + stderr.String())
    }
 }
 
@@ -200,9 +207,10 @@ func isClusterOk(c redis.Conn) bool {
 }
 
 func getPeers() map[string]*View {
+  log.Println("Trying to do DNS lookup to " + os.Getenv("BASE"))
   ips, err := net.LookupIP(os.Getenv("BASE"))
   if err != nil {
-    fmt.Println("DNS lookup on service failed", err)
+    log.Println("DNS lookup on service failed", err)
     return nil
   }
   peers := map[string]*View {}
@@ -215,7 +223,7 @@ func getPeers() map[string]*View {
 func getViewFromConnection(c redis.Conn) *View {
   nodesInfo, err := redis.String(c.Do("CLUSTER", "NODES"))
   if err != nil {
-    fmt.Println(err)
+    log.Println(err)
     return nil
   }
 
@@ -225,11 +233,17 @@ func getViewFromConnection(c redis.Conn) *View {
 }
 
 func getViewFromStrings(lines []string) *View {
+  log.Println("Turning into View ", lines)
   nodes := map[string]Node{}
   var self *Node
   for _, line := range lines {
+    log.Println(line)
     if len(line) > 4 {
       node, isSelf := ParseNode(line)
+      if node == nil {
+        log.Println("Unable to parse", line)
+        continue
+      }
       if isSelf {
         self = node
       }
@@ -271,17 +285,23 @@ func getIndex() int {
 func makeConnection(index int) (redis.Conn, error) {
   var ip string 
   var c redis.Conn
-  seed := fmt.Sprintf("%s-%d.%s.%s.svc.cluster.local", os.Getenv("BASE"), index, os.Getenv("BASE"),os.Getenv("POD_NAMESPACE"))
-  ips, err := net.LookupIP(seed)
-  if err != nil {
-    return nil, err
+  hostname := fmt.Sprintf("%s-%d", os.Getenv("BASE"), index)
+  if hostname == os.Getenv("HOSTNAME") {
+    ip = "127.0.0.1"
+  } else {
+    seed := fmt.Sprintf("%s.%s.%s.svc.cluster.local",hostname , os.Getenv("BASE"),os.Getenv("POD_NAMESPACE"))
+    ips, err := net.LookupIP(seed)
+    if err != nil {
+      return nil, err
+    }
+    ip = ips[0].String()
   }
-  ip = ips[0].String()
   
   for err:= errors.New("dummy"); err != nil;  c, err = redis.Dial("tcp", ip + ":6379", redis.DialReadTimeout(1 * time.Second)) {
-    fmt.Println("Redis at " + ip + " isn't up yet. Waiting 1s")
+    log.Println("Redis at " + ip + " isn't up yet. Waiting 1s")
     time.Sleep(1 * time.Second)
   }
+  log.Println("Redis connection established to " + ip)
   return c, nil
 }
 
@@ -289,7 +309,9 @@ func prestart() (error) {
   s := Status{
     IP: os.Getenv("POD_IP"),
     Index: getIndex(),
-    Peers: getPeers(),
+  }
+  if s.Index == 0 {
+    s.Peers = getPeers()
   }
   v := getViewFromFile()
   if v != nil {
@@ -303,48 +325,77 @@ func prestart() (error) {
     }
     defer c.Close()
     s.RootView = getViewFromConnection(c)
-    fmt.Println("RootView", s.RootView)
+    log.Println("RootView", s.RootView)
   }
 
   
-  fmt.Println("View", v)
-  fmt.Println("Status", s)
+  log.Println("View", v)
+  log.Println("Status", s)
 
   if s.ShouldFlushAndRestart() {
-    err := os.Remove("/data/nodes.conf")
-    if err != nil {
-      return err
-    }
-    err = os.Remove("/data/dump.rdb")
-    if err != nil {
-      return err
-    }
+    log.Println("Clearing out existing files")
+    os.Remove("/data/nodes.conf")
+    os.Remove("/data/dump.rdb")
+    os.Remove("/data/sidecar.txt")
   }
   return nil
 }
 
 func start() (error) {
-  s := Status{
-    IP: os.Getenv("POD_IP"),
-    Index: getIndex(),
-    Peers: getPeers(),
-  }
-  c, err := makeConnection(s.Index)
+  c, err := makeConnection(getIndex())
   if err != nil {
     return err
   }
   defer c.Close()
-  s.View = getViewFromConnection(c)
-  s.ID = s.View.Myid
+
+  view := getViewFromConnection(c)
+
+
+  log.Println("Trying to connect to root")
   croot, err := makeConnection(0)
   if err != nil {
     return err
   }
   defer croot.Close()
-  s.RootView = getViewFromConnection(croot)
+  log.Println("Connected to root")
+  rootView := getViewFromConnection(croot)
 
+  s := Status{
+    IP: os.Getenv("POD_IP"),
+    Index: getIndex(),
+    //Peers: getPeers(),
+    RootView: rootView,
+    View: view,
+    ID: view.Myid,
+  }
+  log.Println("Status", s)
+
+  log.Println("Meeting", s.RootView.Nodes[s.RootView.Myid].Ip)
+  _, err = c.Do("CLUSTER", "MEET", s.RootView.Nodes[s.RootView.Myid].Ip, "6379")
+  if err != nil {
+    return err
+  }
+  log.Println("Connected to root")
+
+  log.Println("Refreshing my View")
+  s.View = getViewFromConnection(c)
+  s.ID = s.View.Myid
+  log.Println("Status after meeting", s)
+  
+
+
+  if s.ShouldReplicateRoot(true) {
+    log.Println("Replicating from ", s.RootView.Myid)
+    _, err = c.Do("CLUSTER", "REPLICATE", s.RootView.Myid)
+    if err != nil {
+      return err
+    }
+  } else {
+    log.Println("Staying a master")
+  }
 
   if s.Index == 0 {
+    log.Println("Fixing the cluster")
     fixCluster(c)
     fixTicker := time.NewTicker(5 * time.Second)
     exaltTheSpareTicker := time.NewTicker(10 * time.Second)
@@ -357,16 +408,24 @@ func start() (error) {
       }
     }
   } else {
+    log.Println("Sleeping forever")
     time.Sleep(10000000*time.Second)
   }
   return nil
 }
 
 func exaltTheSpare(c redis.Conn) {
-
+  log.Println("Exalting a spare")
 }
 
 func main() {
+  f, err := os.OpenFile("/data/" + os.Args[1] + ".txt", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+  if err != nil {
+      log.Fatalf("error opening file: %v", err)
+  }
+  defer f.Close()
+
+  log.SetOutput(f)
   if os.Args[1] == "sidecar" {
     err := start()
     if err != nil {
@@ -375,7 +434,7 @@ func main() {
   } else if os.Args[1] == "prestart" {
     err := prestart()
     if err != nil {
-      fmt.Println(err)
+      log.Println(err)
     }
   }
 }

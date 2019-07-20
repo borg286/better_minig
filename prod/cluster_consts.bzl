@@ -1,5 +1,5 @@
 PROJECT = "fiery-orb-681"
-CLUSTER = "dind"
+CLUSTER = "kind"
 REGISTRY = "gcr.io"
 
 PROD = "prod"

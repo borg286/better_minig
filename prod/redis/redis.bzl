@@ -9,7 +9,7 @@ def redis(name, env):
 
   image_base = "%s/%s/redis-bootstrap:" % (REGISTRY, PROJECT)
 
-  LOCAL_IMAGE_NAME = image_base + "this_tag_will_be_replaced"
+  LOCAL_IMAGE_NAME = image_base + "this_tag_will_be_replaced_wahoo"
 
   jsonnet_to_json(
     name = "{name}-{env}-json".format(**args),
