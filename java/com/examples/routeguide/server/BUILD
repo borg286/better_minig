@@ -11,9 +11,6 @@ java_image(
         "//java/com/examples/routeguide:routeguide",
         "//java/com/examples/routeguide:util",
     ],
-    runtime_deps = [
-        "@build_stack_rules_proto//java:grpc_netty",
-    ],
 )
 
 NAME = "java-grpc"

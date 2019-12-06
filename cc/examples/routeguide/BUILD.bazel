@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@build_stack_rules_proto//cpp:cpp_grpc_library.bzl", "cpp_grpc_library")
+load("@rules_proto_grpc//cpp:defs.bzl", "cpp_grpc_library")
 
 cpp_grpc_library(
     name = "routeguide",

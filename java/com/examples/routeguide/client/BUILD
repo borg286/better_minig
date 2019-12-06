@@ -10,7 +10,6 @@ java_image(
     deps = [
         "//java/com/examples/routeguide:routeguide",
         "//java/com/examples/routeguide:util",
-        "@build_stack_rules_proto//java:grpc_netty",
     ],
 )
 

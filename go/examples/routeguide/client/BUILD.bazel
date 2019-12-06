@@ -1,5 +1,5 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
-load("@build_stack_rules_proto//go:go_grpc_library.bzl", "go_grpc_library")
+load("@rules_proto_grpc//go:defs.bzl", "go_grpc_library")
 
 go_grpc_library(
     name = "routeguide",
@@ -37,6 +37,7 @@ go_test(
     embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )
+
 
 NAME = "go-client"
 
