@@ -1,6 +1,7 @@
 package main
 
 import (
+  "io"
   "os"
   "fmt"
   "time"
@@ -178,13 +179,17 @@ func fixCluster(c redis.Conn) {
   // TODO: I removed grep for cluster_state:ok. Put it back
   if 0 < len(strings.Split(clusterInfo, "\n")) {
     log.Println("Attempting to fix the cluster")
-    cmd := exec.Command("/share/redis-cli", "--cluster", "fix", "127.0.0.1:6379")
+    cmd := exec.Command("/usr/local/bin/redis-cli", "--cluster", "fix", "127.0.0.1:6379")
+    //cmd.Env = append(os.Environ(), "LD_LIBRARY_PATH=/share/:/lib/x86_64-linux-gnu/")
     cmd.Stdin = strings.NewReader("yes")
     var out bytes.Buffer
     var stderr bytes.Buffer
     cmd.Stdout = &out
     cmd.Stderr = &stderr
-    cmd.Run()
+    err := cmd.Run()
+    if err != nil {
+      log.Printf("Command finished with error: %v", err)
+    }
     log.Println("out:" + out.String())
     log.Println("err:" + stderr.String())
    }
@@ -395,7 +400,7 @@ func start() (error) {
   }
 
   if s.Index == 0 {
-    log.Println("Fixing the cluster")
+    log.Println("Calling fixCluster")
     fixCluster(c)
     fixTicker := time.NewTicker(5 * time.Second)
     exaltTheSpareTicker := time.NewTicker(10 * time.Second)
@@ -418,6 +423,40 @@ func exaltTheSpare(c redis.Conn) {
   log.Println("Exalting a spare")
 }
 
+func copyLibs() (error) {
+    log.Println("Opening libc")
+    // Open original file
+    originalFile, err := os.Open("/share/libc.so.6")
+    if err != nil {
+        return err
+    }
+    defer originalFile.Close()
+
+    log.Println("Opening my libc file")
+    // Create new file
+    newFile, err := os.Open("/lib/x86_64-linux-gnu/libc.so.6")
+    if err != nil {
+        return err
+    }
+    defer newFile.Close()
+
+    log.Println("Trying to copy the file")
+    // Copy the bytes to destination from source
+    bytesWritten, err := io.Copy(newFile, originalFile)
+    if err != nil {
+        return err
+    }
+    log.Println("Copied %d bytes.", bytesWritten)
+
+    // Commit the file contents
+    // Flushes memory to disk
+    err = newFile.Sync()
+    if err != nil {
+        return err
+    }
+    return nil
+}
+
 func main() {
   f, err := os.OpenFile("/data/" + os.Args[1] + ".txt", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
   if err != nil {
@@ -427,6 +466,10 @@ func main() {
 
   log.SetOutput(f)
   if os.Args[1] == "sidecar" {
+    //err := copyLibs()
+    //if err != nil {
+    //  log.Println(err)
+    //}
     err := start()
     if err != nil {
       log.Fatal(err)

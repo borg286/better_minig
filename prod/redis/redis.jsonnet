@@ -27,7 +27,6 @@ dir /data
 ';
 
 local start = '
-cp /usr/local/bin/redis-cli /share/redis-cli
 cp /conf/redis.conf /tmp/redis.conf
 echo "cluster-announce-ip $POD_IP" >> /tmp/redis.conf
 redis-server /tmp/redis.conf

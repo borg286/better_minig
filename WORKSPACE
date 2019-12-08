@@ -80,6 +80,16 @@ load(
 _java_image_repos()
 
 
+load("@io_bazel_rules_docker//container:container.bzl", "container_pull",)
+container_pull(
+    name = "redis-base",
+    registry = "index.docker.io",
+    repository = "redis",
+    digest = "sha256:e73ef998c22f9a98793d9951bb2915cd945d8fa6f9ec1b324e85d19617efc2fd",
+)
+
+
+
 #====== END Docker images==========
 
 
@@ -173,11 +183,11 @@ grpc_java_repositories(
 
 
 #=======   K8S =======
-http_archive(
+
+git_repository(
     name = "io_bazel_rules_k8s",
-    sha256 = "cc75cf0d86312e1327d226e980efd3599704e01099b58b3c2fc4efe5e321fcd9",
-    strip_prefix = "rules_k8s-0.3.1",
-    urls = ["https://github.com/bazelbuild/rules_k8s/releases/download/v0.3.1/rules_k8s-v0.3.1.tar.gz"],
+    commit = "aaf9e025990c8a9ca5bc19faaa2010641eba5738",
+    remote = "https://github.com/bazelbuild/rules_k8s.git",
 )
 
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
@@ -229,8 +239,8 @@ jsonnet_repositories()
 
 http_archive(
     name = "kube_jsonnet",
-    url = "https://github.com/bitnami-labs/kube-libsonnet/archive/7107df489817715d01b0c29088f4bbf5c4696aaa.tar.gz",
-    strip_prefix = "kube-libsonnet-7107df489817715d01b0c29088f4bbf5c4696aaa",
+    url = "https://github.com/bitnami-labs/kube-libsonnet/archive/96b30825c33b7286894c095be19b7b90687b1ede.tar.gz",
+    strip_prefix = "kube-libsonnet-96b30825c33b7286894c095be19b7b90687b1ede",
     build_file_content = """
 package(default_visibility = ["//visibility:public"])
 load("@io_bazel_rules_jsonnet//jsonnet:jsonnet.bzl", "jsonnet_library")
