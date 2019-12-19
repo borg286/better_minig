@@ -59,8 +59,8 @@ public class RouteGuideClient {
   private RedissonClient redisson;
 
   /** Construct client for accessing RouteGuide server at {@code host:port}. */
-  public RouteGuideClient(String host, int port, RedissonClient redisson) {
-    this(ManagedChannelBuilder.forAddress(host, port).usePlaintext(), redisson);
+  public RouteGuideClient(String target, RedissonClient redisson) {
+    this(ManagedChannelBuilder.forTarget(target).usePlaintext(), redisson);
   }
 
   /** Construct client for accessing RouteGuide server using the existing channel. */
@@ -262,16 +262,17 @@ public class RouteGuideClient {
 
   /** Issues several different requests and then exits. */
   public static void main(String[] args) throws InterruptedException {
-    String hostname = "localhost";
-    int port = 50052;
+    String target = "localhost";
     if (args.length >= 2) {
-      hostname = args[0];
-      port = Integer.parseInt(args[1]);
+      int port = Integer.parseInt(args[1]);
+      target = "dns:///" + args[0] + ".mrmath.svc.cluster.local:" + port;// + ".svc.cluster.local";
+      //target = "10.42.0.8:" + port;
+      System.out.println("Using target: " + target); 
     }
     Config config = new Config();
     config.useSingleServer().setAddress("redis://" + args[2] + ":6379");
     RedissonClient redisson = Redisson.create(config);
-    RouteGuideClient client = new RouteGuideClient(hostname, port, redisson);
+    RouteGuideClient client = new RouteGuideClient(target, redisson);
 
     /*RedisClient rawClient = new RedisClient(args[2], 6379);
     RedisConnection conn = rawClient.connect();*/

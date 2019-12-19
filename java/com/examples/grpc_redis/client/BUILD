@@ -1,5 +1,23 @@
 load("@io_bazel_rules_docker//java:image.bzl", "java_image")
 
+
+
+
+java_binary(
+    name = "client-binary",
+    srcs = [
+        "RouteGuideClient.java",
+    ],
+    main_class = "io.grpc.examples.grpc_redis.RouteGuideClient",
+    resources = ["//java/com/examples/routeguide:route_guide_db.json"],
+    deps = [
+        "//java/com/examples/grpc_redis:routeguide",
+        "//java/com/examples/grpc_redis:util",
+        "@org_redisson_redisson//jar",
+    ],
+)
+
+
 java_image(
     name = "client-image",
     srcs = [
@@ -11,6 +29,10 @@ java_image(
         "//java/com/examples/grpc_redis:routeguide",
         "//java/com/examples/grpc_redis:util",
         "@org_redisson_redisson//jar",
+    ],
+    runtime_deps = [
+        "@io_grpc_grpc_java//netty",
+        "@netty_tcnative_boringssl_static//jar",
     ],
 )
 
