@@ -1,5 +1,5 @@
 PROJECT = "fiery-orb-681"
-CLUSTER = "minikube"
+CLUSTER = "default"
 REGISTRY = "gcr.io"
 
 PROD = "prod"

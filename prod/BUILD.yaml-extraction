@@ -1,0 +1,11 @@
+exports_files(
+    glob([
+        "**/*.yaml",
+    ]),
+)
+exports_files(
+    glob([
+        "**/*.json",
+    ]),
+)
+

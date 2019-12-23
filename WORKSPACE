@@ -1,6 +1,6 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 
 
 
@@ -107,10 +107,6 @@ rules_proto_grpc_repos()
 
 
 
-
-
-
-
 load("@rules_proto_grpc//:repositories.bzl", "bazel_gazelle", "io_bazel_rules_go")
 
 io_bazel_rules_go()
@@ -143,23 +139,34 @@ grpc_deps()
 
 
 
+load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos="python_repos")
+
+rules_proto_grpc_python_repos()
+
+load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
+
+grpc_deps()
+
+
 load("@rules_python//python:repositories.bzl", "py_repositories")
 py_repositories()
 
 load("@rules_python//python:pip.bzl", "pip_repositories")
 pip_repositories()
 
-load("@rules_python//python:pip.bzl", "pip_import", "pip3_import")
+load("@rules_python//python:pip.bzl", "pip_import")
 pip_import(
     name = "rules_proto_grpc_py2_deps",
+    python_interpreter = "python",
     requirements = "@rules_proto_grpc//python:requirements.txt",
 )
 
 load("@rules_proto_grpc_py2_deps//:requirements.bzl", pip2_install="pip_install")
 pip2_install()
 
-pip3_import(
+pip_import(
     name = "rules_proto_grpc_py3_deps",
+    python_interpreter = "python3",
     requirements = "@rules_proto_grpc//python:requirements.txt",
 )
 
@@ -369,3 +376,20 @@ maven_jar(
 #======== End Maven java imports
 
 
+#======== Monitoring configs =====
+
+new_git_repository(
+    name = "monitoring",
+    remote = "https://github.com/coreos/kube-prometheus.git",
+    commit = "9493a1a5f7090dca406a0e80d1986484c70c1acf",
+    build_file = "//prod:BUILD.yaml-extraction",
+)
+
+
+go_repository(
+    name = "gojsontoyaml",
+    commit = "bf2969bbd742d117a9524b859fb417fefb67565d",
+    importpath = "github.com/brancz/gojsontoyaml",
+)
+
+#======== End Monitoring configs ====

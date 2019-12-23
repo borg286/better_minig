@@ -1,5 +1,4 @@
 load("@io_bazel_rules_docker//python:image.bzl", "py_image")
-
 py_image(
     name = "client-image",
     srcs = [
@@ -12,6 +11,7 @@ py_image(
         "//py/examples/routeguide:routeguide",
     ],
 )
+
 
 NAME = "py-client"
 

@@ -110,7 +110,9 @@ public class RouteGuideServer {
     config.useSingleServer().setAddress("redis://" + args[1] + ":6379");
     RedissonClient redisson = Redisson.create(config);
     RouteGuideServer server = new RouteGuideServer(Integer.parseInt(args[0]), redisson);
+    System.out.println("Starting Server");
     server.start();
+    System.out.println("Blocking until Shutdown");
     server.blockUntilShutdown();
   }
 
