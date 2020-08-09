@@ -19,6 +19,6 @@ java_library(
     deps = [
         ":routeguide",
         "@com_google_protobuf//:protobuf_java_util",
-        "@org_redisson_redisson//jar",
+        "@maven//:org_redisson_redisson_all",
     ],
 )

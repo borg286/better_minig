@@ -10,7 +10,7 @@ java_image(
     deps = [
         "//java/com/examples/grpc_redis:routeguide",
         "//java/com/examples/grpc_redis:util",
-        "@org_redisson_redisson//jar",
+        "@maven//:org_redisson_redisson_all",
     ],
 )
 

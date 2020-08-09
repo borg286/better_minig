@@ -1,14 +1,6 @@
-
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 
-
-
-git_repository(
-    name = "rules_python",
-    remote = "https://github.com/bazelbuild/rules_python.git",
-    commit = "38f86fb55b698c51e8510c807489c9f4e047480e",
-)
 
 
 #=====Docker images======
@@ -16,9 +8,9 @@ git_repository(
 # Download the rules_docker repository at release v0.12.1
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "14ac30773fdb393ddec90e158c9ec7ebb3f8a4fd533ec2abbfd8789ad81a284b",
-    strip_prefix = "rules_docker-0.12.1",
-    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.12.1/rules_docker-v0.12.1.tar.gz"],
+    sha256 = "4521794f0fba2e20f3bf15846ab5e01d5332e587e9ce81629c7f96c793bb7036",
+    strip_prefix = "rules_docker-0.14.4",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.14.4/rules_docker-v0.14.4.tar.gz"],
 )
 
 
@@ -34,6 +26,11 @@ load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
 
 container_deps()
 
+
+load("@io_bazel_rules_docker//repositories:pip_repositories.bzl", "pip_deps")
+
+pip_deps()
+
 load(
     "@io_bazel_rules_docker//container:container.bzl",
     "container_pull",
@@ -46,7 +43,6 @@ container_pull(
   # 'tag' is also supported, but digest is encouraged for reproducibility.
   digest = "sha256:deadbeef",
 )
-
 load(
     "@io_bazel_rules_docker//repositories:repositories.bzl",
     container_repositories = "repositories",
@@ -88,8 +84,6 @@ container_pull(
     digest = "sha256:e73ef998c22f9a98793d9951bb2915cd945d8fa6f9ec1b324e85d19617efc2fd",
 )
 
-
-
 #====== END Docker images==========
 
 
@@ -97,7 +91,7 @@ container_pull(
 
 git_repository(
     name = "rules_proto_grpc",
-    commit = "6264dec9b1464817cc7c954b957823f33c19d838",
+    commit = "aeb1f82225e53e756765a4da761adf0c85112a54",
     remote = "https://github.com/rules-proto-grpc/rules_proto_grpc.git",
 )
 
@@ -126,9 +120,6 @@ gazelle_dependencies()
 load("@rules_proto_grpc//go:repositories.bzl", rules_proto_grpc_go_repos="go_repos")
 
 rules_proto_grpc_go_repos()
-
-
-
 load("@rules_proto_grpc//cpp:repositories.bzl", rules_proto_grpc_cpp_repos="cpp_repos")
 
 rules_proto_grpc_cpp_repos()
@@ -169,7 +160,6 @@ pip_import(
     python_interpreter = "python3",
     requirements = "@rules_proto_grpc//python:requirements.txt",
 )
-
 load("@rules_proto_grpc_py3_deps//:requirements.bzl", pip3_install="pip_install")
 pip3_install()
 
@@ -188,13 +178,16 @@ grpc_java_repositories(
 
 #======= END GRPC =======
 
-
 #=======   K8S =======
 
-git_repository(
+# This requires rules_docker to be fully instantiated before
+# it is pulled in.
+# Download the rules_k8s repository at release v0.4
+http_archive(
     name = "io_bazel_rules_k8s",
-    commit = "aaf9e025990c8a9ca5bc19faaa2010641eba5738",
-    remote = "https://github.com/bazelbuild/rules_k8s.git",
+    sha256 = "d91aeb17bbc619e649f8d32b65d9a8327e5404f451be196990e13f5b7e2d17bb",
+    strip_prefix = "rules_k8s-0.4",
+    urls = ["https://github.com/bazelbuild/rules_k8s/releases/download/v0.4/rules_k8s-v0.4.tar.gz"],
 )
 
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
@@ -225,13 +218,10 @@ k8s_defaults(
 )
 
 
-
 #====== END K8S ======
 
 
 #====== JSONNET  =====
-
-
 # We use jsonnet to configure the kubernetes deployments, services...
 
 git_repository(
@@ -259,9 +249,6 @@ jsonnet_library(
 """,
 )
 
-
-
-
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 http_file(
     name = "storage_deployment",
@@ -281,7 +268,6 @@ http_file(
     sha256 = "472c26dd70bfbd92db890f1f7d5f68474b2388864f60fcd2c05f1aa2a0737467",
     downloaded_file_path = "storageclass.yaml"
 )
-
 
 #======= END JSONNET  ======
 
@@ -303,76 +289,45 @@ go_repository(
 
 #======= END Imports of go repos =======================
 
-
-
 #======== Maven java imports   ========
 
-# Imported from Redisson dependencies
-maven_jar(
-    name = "org_redisson_redisson",
-    artifact = "org.redisson:redisson-all:3.10.0",
-    sha256 = "360a430acf4bb5992fa41834ac49f94626988254e1abcdc7d97c7e1530e076fa",
-    sha256_src = "5ff6499d19d0e26cf0564f511bc07365df85fd53c5cacc36395ebab140b3257c",
+
+RULES_JVM_EXTERNAL_TAG = "3.3"
+RULES_JVM_EXTERNAL_SHA = "d85951a92c0908c80bd8551002d66cb23c3434409c814179c0ff026b53544dab"
+
+http_archive(
+    name = "rules_jvm_external",
+    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
+    sha256 = RULES_JVM_EXTERNAL_SHA,
+    url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
 )
 
-maven_jar(
-    name = "jedis",
-    artifact = "redis.clients:jedis:3.0.0",
-    sha256 = "f31df05826147840153ac4429925b85f6540ad00cc81c311e4b11b0a964ce98b",
-    sha256_src = "99441a8a226d460438a34a2ae6c3c387fea3de276c317b39f4e4aaca7c306948",
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+maven_install(
+    artifacts = [
+        # Imported from Redisson dependencies
+        "org.redisson:redisson-all:3.13.3",
+        "redis.clients:jedis:3.0.0",
+        "org.slf4j:slf4j-api:1.7.25",
+        "org.slf4j:slf4j-simple:1.7.25",
+        "org.apache.commons:commons-pool2:2.4.3",
+        "org.apache.commons:commons-lang3:3.11",
+        "io.netty:netty-tcnative-boringssl-static:2.0.31.Final",
+
+        # Flag library
+        "com.github.pcj:google-options:jar:1.0.0",
+        "com.google.code.gson:gson:2.8.5",
+        "com.google.protobuf:protobuf-java-util:3.6.1",
+
+        # Joda time
+        "joda-time:joda-time:2.10",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://mvnrepository.com",
+    ],
 )
-
-maven_jar(
-    name = "org_slf4j_api",
-    artifact = "org.slf4j:slf4j-api:1.7.25",
-    sha256 = "18c4a0095d5c1da6b817592e767bb23d29dd2f560ad74df75ff3961dbde25b79",
-    sha256_src = "c4bc93180a4f0aceec3b057a2514abe04a79f06c174bbed910a2afb227b79366",
-)
-
-maven_jar(
-    name = "org_slf4j_simple",
-    artifact = "org.slf4j:slf4j-simple:1.7.25",
-    sha256_src = "2cfa254e77c6f41bdcd8500c61c0f6b9959de66835d2b598102d38c2a807f367",
-    sha256 = "0966e86fffa5be52d3d9e7b89dd674d98a03eed0a454fbaf7c1bd9493bd9d874",
-)
-
-
-maven_jar(
-    name = "org_apache_commons",
-    artifact = "org.apache.commons:commons-pool2:2.4.3",
-    sha256 = "d6ce7f6ab4341eb1da6139006b287fcd2cf8553abcfb018c0906224815fc9245",
-    sha256_src = "c3334aa4ee68836b9bcb0887d9c8be14620d3850aab740e2e6635f8eee9356fe",
-)
-
-# Flag library
-
-maven_jar(
-    name = "com_github_pcj_google_options",
-    artifact = "com.github.pcj:google-options:jar:1.0.0",
-    sha256 = "f1f84449b46390a7fa73aac0b5acdec4312d6174146af0db1c92425c7005fdce",
-    sha256_src = "3871275e5323aaa132ed043c3c3bf6620f5fe73c8aeb456ce992db9ce5d59768",
-)
-
-# gson (json encoding and decoding)
-maven_jar(
-    name = "com_google_code_gson",
-    artifact = "com.google.code.gson:gson:2.8.5",
-    sha256 = "233a0149fc365c9f6edbd683cfe266b19bdc773be98eabdaf6b3c924b48e7d81",
-    sha256_src = "512b4bf6927f4864acc419b8c5109c23361c30ed1f5798170248d33040de068e",
-)
-
-# protobuf
-maven_jar(
-    name = "my_com_google_protobuf",
-    artifact = "com.google.protobuf:protobuf-java-util:3.6.1",
-)
-
-# Joda time
-maven_jar(
-    name = "joda_time",
-    artifact = "joda-time:joda-time:2.10",
-)
-
 #======== End Maven java imports
 
 
@@ -388,7 +343,7 @@ new_git_repository(
 
 go_repository(
     name = "gojsontoyaml",
-    commit = "bf2969bbd742d117a9524b859fb417fefb67565d",
+    commit = "3697ded27e8cfea8e547eb082ebfbde36f1b5ee6",
     importpath = "github.com/brancz/gojsontoyaml",
 )
 

@@ -13,7 +13,7 @@ java_binary(
     deps = [
         "//java/com/examples/grpc_redis:routeguide",
         "//java/com/examples/grpc_redis:util",
-        "@org_redisson_redisson//jar",
+        "@maven//:org_redisson_redisson_all",
     ],
 )
 
@@ -28,11 +28,11 @@ java_image(
     deps = [
         "//java/com/examples/grpc_redis:routeguide",
         "//java/com/examples/grpc_redis:util",
-        "@org_redisson_redisson//jar",
+        "@maven//:org_redisson_redisson_all",
     ],
     runtime_deps = [
         "@io_grpc_grpc_java//netty",
-        "@netty_tcnative_boringssl_static//jar",
+        "@maven//:io_netty_netty_tcnative_boringssl_static",
     ],
 )
 

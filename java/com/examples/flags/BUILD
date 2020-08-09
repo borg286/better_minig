@@ -3,8 +3,8 @@ java_binary(
     main_class = "com.examples.flags.Server",
     srcs = glob(["*.java"]),
     deps = [
-        "@com_github_pcj_google_options//jar",
-        "@com_google_guava_guava//jar",
+        "@maven//:com_github_pcj_google_options",
+        "@maven//:com_google_guava_guava",
     ],
     args = [
         "--host",

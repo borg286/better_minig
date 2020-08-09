@@ -1,1 +1,1 @@
-build --incompatible_depset_union=false --action_env=USER
+build --action_env=USER  --javacopt="-XepDisableAllChecks"'

@@ -23,7 +23,6 @@ import org.redisson.client.protocol.RedisCommand;
 import org.redisson.client.codec.StringCodec;
 import org.redisson.client.protocol.RedisCommands;
 import org.redisson.client.RedisClientConfig;
-import org.redisson.client.protocol.decoder.ListMultiDecoder;
 import org.redisson.client.protocol.decoder.GeoPositionDecoder;
 import org.redisson.client.protocol.decoder.ObjectListReplayDecoder;
 import java.util.Arrays;

@@ -3,7 +3,7 @@ java_library(
     name = "lib",
     srcs = ["RedissonExample.java"],
     deps = [
-        "@org_redisson_redisson//jar",
+        "@maven//:org_redisson_redisson_all",
     ],
 )
 
@@ -19,9 +19,9 @@ java_binary(
     main_class = "com.examples.redis.JedisExample",
     srcs = ["JedisExample.java"],
     deps = [
-        "@jedis//jar",
-        "@org_slf4j_api//jar",
-        "@org_slf4j_simple//jar",
-        "@org_apache_commons//jar",
+        "@maven//:redis_clients_jedis",
+        "@maven//:org_slf4j_slf4j_api",
+        "@maven//:org_slf4j_slf4j_simple",
+        "@maven//:org_apache_commons_commons_pool2",
     ],
 )
