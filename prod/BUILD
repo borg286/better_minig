@@ -74,21 +74,15 @@ k8s_objects(
     objects = [":registry-depl", ":registry-svc"],
 )
 
+
+
 k8s_object(
-    name = "storage_deployment",
-    template = "@storage_deployment//file:deployment.yaml",
-)
-k8s_object(
-    name = "storage_rbac",
-    template = "@storage_rbac//file:rbac.yaml",
-)
-k8s_object(
-    name = "storage_storageclass",
-    template = "@storage_storageclass//file:storageclass.yaml",
+    name = "storage_class",
+    template = "storage.yaml",
 )
 k8s_objects(
     name = "storage",
-    objects = [":storage_deployment", ":storage_rbac", ":storage_storageclass"]
+    objects = [":storage_class"]
 )
 
 
