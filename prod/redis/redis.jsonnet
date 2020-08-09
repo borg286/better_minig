@@ -121,7 +121,7 @@ local redis = {
         name: {
           storage: "1Gi",
           metadata+: {namespace: envs.getName(params.env)},
-          //spec+: {storageClassName: "hostpath"}
+          spec+: {storageClassName: "hostpath"}
         },
       },
     },

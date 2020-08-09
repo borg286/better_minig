@@ -41,8 +41,20 @@ local override_row(rows) = (
 local pod_dashboard = std.parseJson(std.filter(function (x) std.objectHas(x.data, "pods.json"), files["grafana-dashboardDefinitions-patched.json"].items)[0].data["pods.json"]);
 local new_dashboard = pod_dashboard +{rows: override_row(super.rows)};
 
+local unpatched = files + {
+        ["grafana-deployment-patched.json"] +:{spec +:{template +:{spec +:{containers:[
+            if container.name == "grafana" then container + {env +:[
+              {name: "GF_AUTH_BASIC_ENABLED",value : "false"},
+              {name: "GF_AUTH_ANONYMOUS_ENABLED",value : "true"},
+              {name: "GF_AUTH_ANONYMOUS_ORG_ROLE",value : "Admin"},
+              {name: "GF_SERVER_ROOT_URL",value : "/"},
+            ]}
+            else container
+            for container in super.containers
+        ]}}}}
+};
 
-local patched = files + {
+local patched = unpatched + {
     ["prometheus-rules-patched.json"] +: {spec+:{groups: [
         if group.name == "k8s.rules" then group  +{rules: [
             if rule.record == "namespace:container_cpu_usage_seconds_total:sum_rate" then rule +{
@@ -75,18 +87,7 @@ local patched = files + {
 	    else item
 	    for item in super.items
 	]}
-} + {
-	["grafana-deployment-patched.json"] +:{spec +:{template +:{spec +:{containers:[
-	    if container.name == "grafana" then container + {env +:[
-	      {name: "GF_AUTH_BASIC_ENABLED",value : "false"},
-	      {name: "GF_AUTH_ANONYMOUS_ENABLED",value : "true"},
-	      {name: "GF_AUTH_ANONYMOUS_ORG_ROLE",value : "Admin"},
-	      {name: "GF_SERVER_ROOT_URL",value : "/"},
-	    ]}
-	    else container
-	    for container in super.containers
-	]}}}}
 };
 
 
-patched
+unpatched
