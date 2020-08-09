@@ -15,6 +15,9 @@ java_binary(
         "//java/com/examples/grpc_redis:util",
         "@maven//:org_redisson_redisson_all",
     ],
+    runtime_deps = [
+        "@io_netty_netty_common//jar",
+    ],
 )
 
 
@@ -31,8 +34,7 @@ java_image(
         "@maven//:org_redisson_redisson_all",
     ],
     runtime_deps = [
-        "@io_grpc_grpc_java//netty",
-        "@maven//:io_netty_netty_tcnative_boringssl_static",
+        "@io_netty_netty_common//jar",
     ],
 )
 

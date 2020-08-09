@@ -12,6 +12,9 @@ java_image(
         "//java/com/examples/grpc_redis:util",
         "@maven//:org_redisson_redisson_all",
     ],
+    runtime_deps = [
+        "@io_netty_netty_common//jar",
+    ],    
 )
 
 NAME = "java-redis-grpc"

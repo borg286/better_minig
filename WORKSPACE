@@ -167,6 +167,15 @@ pip3_install()
 
 load("@rules_proto_grpc//java:repositories.bzl", rules_proto_grpc_java_repos="java_repos")
 rules_proto_grpc_java_repos()
+
+load("@bazel_tools//tools/build_defs/repo:jvm.bzl", "jvm_maven_import_external")
+jvm_maven_import_external(
+    name = "io_netty_netty_common",
+    artifact = "io.netty:netty-common:4.1.51.Final",
+    server_urls = ["https://repo.maven.apache.org/maven2/"],
+    licenses = ["notice"],  # Apache 2.0
+)
+
 load("@io_grpc_grpc_java//:repositories.bzl", "grpc_java_repositories")
 grpc_java_repositories(
     omit_bazel_skylib = True,
@@ -292,7 +301,8 @@ maven_install(
         "org.slf4j:slf4j-simple:1.7.25",
         "org.apache.commons:commons-pool2:2.4.3",
         "org.apache.commons:commons-lang3:3.11",
-        "io.netty:netty-tcnative-boringssl-static:2.0.31.Final",
+        #"io.netty:netty-tcnative-boringssl-static:2.0.31.Final",
+        #"io.netty:netty-all:4.1.41.Final",
 
         # Flag library
         "com.github.pcj:google-options:jar:1.0.0",
