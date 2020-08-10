@@ -21,6 +21,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.Message;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.CallOptions;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.examples.routeguide.RouteGuideGrpc.RouteGuideBlockingStub;
@@ -60,14 +61,14 @@ public class RouteGuideClient {
 
   /** Construct client for accessing RouteGuide server at {@code host:port}. */
   public RouteGuideClient(String target, RedissonClient redisson) {
-    this(ManagedChannelBuilder.forTarget(target).usePlaintext(), redisson);
+    this(ManagedChannelBuilder.forTarget(target).usePlaintext().enableRetry().maxRetryAttempts(5), redisson);
   }
 
   /** Construct client for accessing RouteGuide server using the existing channel. */
   public RouteGuideClient(ManagedChannelBuilder<?> channelBuilder, RedissonClient redisson) {
     channel = channelBuilder.build();
-    blockingStub = RouteGuideGrpc.newBlockingStub(channel);
-    asyncStub = RouteGuideGrpc.newStub(channel);
+    blockingStub = RouteGuideGrpc.newBlockingStub(channel).withWaitForReady();
+    asyncStub = RouteGuideGrpc.newStub(channel).withWaitForReady();
     this.redisson = redisson;
   }
 
