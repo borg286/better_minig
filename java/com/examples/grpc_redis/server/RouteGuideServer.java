@@ -48,6 +48,7 @@ import org.redisson.api.GeoPosition;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
+
 /**
  * A sample gRPC server that serve the RouteGuide (see route_guide.proto) service.
  */

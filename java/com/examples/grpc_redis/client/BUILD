@@ -17,6 +17,7 @@ java_binary(
     ],
     runtime_deps = [
         "@io_netty_netty_common//jar",
+        "@io_netty_netty_tcnative_boringssl_static//jar",
     ],
 )
 
@@ -35,6 +36,7 @@ java_image(
     ],
     runtime_deps = [
         "@io_netty_netty_common//jar",
+        "@io_netty_netty_tcnative_boringssl_static//jar",
     ],
 )
 

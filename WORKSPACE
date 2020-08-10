@@ -175,6 +175,13 @@ jvm_maven_import_external(
     server_urls = ["https://repo.maven.apache.org/maven2/"],
     licenses = ["notice"],  # Apache 2.0
 )
+jvm_maven_import_external(
+    name = "io_netty_netty_tcnative_boringssl_static",
+    artifact = "io.netty:netty-tcnative-boringssl-static:2.0.30.Final",
+    server_urls = ["https://repo.maven.apache.org/maven2/"],
+    artifact_sha256 = "61934ca753be47973fe427d1f483a1b2fbcaf56eefc71519bf35fddb036ee111",
+    licenses = ["notice"],  # Apache 2.0
+)
 
 load("@io_grpc_grpc_java//:repositories.bzl", "grpc_java_repositories")
 grpc_java_repositories(
