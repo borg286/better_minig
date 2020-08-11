@@ -30,6 +30,7 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
+import healthchecking.HealthService;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,6 +41,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.StreamHandler;
+import java.util.logging.SimpleFormatter;
 
 import org.redisson.Redisson;
 import org.redisson.api.RGeo;
@@ -66,15 +69,17 @@ public class RouteGuideServer {
   /** Create a RouteGuide server using serverBuilder as a base and features as data. */
   public RouteGuideServer(ServerBuilder<?> serverBuilder, int port, RedissonClient redisson, RGeo<String> geo) {
     this.port = port;
-    logger.info("Initializing server with " + geo.size() + " features");
-    server = serverBuilder.addService(new RouteGuideService(redisson, geo))
-        .build();
+    System.out.println("Initializing server with " + geo.size() + " features");
+    RouteGuideService service = new RouteGuideService(redisson, geo);
+    server = serverBuilder
+        .addService(service)
+        .addService(new HealthService(() -> {return service.isHealthy();})).build();
   }
 
   /** Start serving requests. */
   public void start() throws IOException {
     server.start();
-    logger.info("Server started, listening on " + port);
+    System.out.println("Server started, listening on " + port);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
@@ -106,16 +111,21 @@ public class RouteGuideServer {
    * Main method.  This comment makes the linter happy.
    */
   public static void main(String[] args) throws Exception {
+    logger.addHandler(new StreamHandler(System.out, new SimpleFormatter()));
     System.out.println("Using port " + args[0]);
     Config config = new Config();
-    config.useSingleServer().setAddress("redis://" + args[1] + ":6379");
+    System.out.println("creating redisson config");
+    config.useClusterServers().addNodeAddress("redis://" + args[1] + ":6379");
     RedissonClient redisson = Redisson.create(config);
+    System.out.println("Creating RouteGuideServer");
     RouteGuideServer server = new RouteGuideServer(Integer.parseInt(args[0]), redisson);
     System.out.println("Starting Server");
     server.start();
     System.out.println("Blocking until Shutdown");
     server.blockUntilShutdown();
   }
+
+
 
   /**
    * Our implementation of RouteGuide service.
@@ -131,6 +141,10 @@ public class RouteGuideServer {
     RouteGuideService(RedissonClient redisson, RGeo<String> geo) {
       this.redisson = redisson;
       this.geo = geo;
+    }
+
+    public boolean isHealthy() {
+      return !redisson.isShuttingDown();
     }
 
     /**

@@ -271,7 +271,7 @@ public class RouteGuideClient {
       System.out.println("Using target: " + target); 
     }
     Config config = new Config();
-    config.useSingleServer().setAddress("redis://" + args[2] + ":6379");
+    config.useClusterServers().addNodeAddress("redis://" + args[2] + ":6379");
     RedissonClient redisson = Redisson.create(config);
     RouteGuideClient client = new RouteGuideClient(target, redisson);
 

@@ -9,6 +9,7 @@ java_image(
     resources = ["//java/com/examples/grpc_redis:route_guide_db.json"],
     deps = [
         "//java/com/examples/grpc_redis:routeguide",
+        "//java/com/healthchecking:health-service",
         "//java/com/examples/grpc_redis:util",
         "@maven//:org_redisson_redisson_all",
     ],

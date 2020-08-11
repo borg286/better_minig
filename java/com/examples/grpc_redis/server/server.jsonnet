@@ -19,6 +19,16 @@ local main_container = kube.Container("server") {
   args: [std.toString(params.port), redis_service.metadata.name]
 };
 
+local health_sidecar = kube.Container("health") {
+  resources: {},
+  image: "amothic/grpc-health-probe:latest",
+  securityContext: {capabilities: {add: ["SYS_PTRACE"]}},
+  // This image doesn't have a way to sleep, so use the only binary and make it wait forever.
+  args: ["-addr=:9011", "-connect-timeout=999999999s"],
+  livenessProbe: {exec: {command: ["/bin/grpc_health_probe", "-addr=:" + params.port]}},
+  readinessProbe: {exec: {command: ["/bin/grpc_health_probe", "-addr=:" + params.port]}},
+};
+
 local deployment = kube.Deployment(params.name) {
   metadata+: {namespace: envs.getName(params.env)},
   spec+: {
@@ -26,7 +36,8 @@ local deployment = kube.Deployment(params.name) {
     template+: {
       spec+: {
         containers_+: {
-          gb_fe: main_container,
+          default: main_container,
+          health: health_sidecar,
 }}}}};
 
 {
