@@ -1,6 +1,6 @@
 
 #TODO
-
+Main doc that hosts my thoughts https://docs.google.com/document/d/15_0YQdT_D2lpTCC2OfhxECfLNjz9Pt6a8bGbhF3pQ7Q/edit#heading=h.uzpgfj40m626
 
 
 # Services to incorperate
