@@ -74,6 +74,10 @@ k8s_objects(
     objects = [":registry-depl", ":registry-svc"],
 )
 
+k8s_objects(
+    name = "setup",
+    objects = [":local-registry"] + [":%s"%env for env in ENVS] + ["//prod/monitoring:monitoring-setup"],
+)
 
 
 k8s_object(
@@ -81,7 +85,7 @@ k8s_object(
     template = "storage.yaml",
 )
 k8s_objects(
-    name = "storage",
+    name = "storage-setup",
     objects = [":storage_class"]
 )
 

@@ -1,4 +1,26 @@
 
+
+
+#How to run
+Install k3d if necessary
+wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+
+Create a network to enable docker registry to be accessable with same IP from both sides
+docker network create --subnet=172.19.0.0/26 k3d-network
+
+Create kubernetes cluster
+k3d cluster create --volume ./registries.yaml:/etc/rancher/k3s/registries.yaml --network k3d-network
+
+bazel run //prod:apply
+
+bazel run //java/com/examples/grpc-redis/client:myns-deep.apply
+
+
+
+
+
+
+
 #TODO
 Main doc that hosts my thoughts https://docs.google.com/document/d/15_0YQdT_D2lpTCC2OfhxECfLNjz9Pt6a8bGbhF3pQ7Q/edit#heading=h.uzpgfj40m626
 

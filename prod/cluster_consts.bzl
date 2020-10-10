@@ -1,6 +1,6 @@
 PROJECT = "fiery-orb-681"
-CLUSTER = "k3d-mycluster"
-REGISTRY = "gcr.io"
+CLUSTER = "k3d-k3s-default"
+REGISTRY = "172.19.0.2:31000"
 
 PROD = "prod"
 STAGING = "staging"

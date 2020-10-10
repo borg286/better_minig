@@ -1,4 +1,4 @@
-
+package(default_visibility = ["//visibility:public"])
 load("//jsonnet:yaml_to_json.bzl", "yaml_to_json")
 
 SETUP = {
@@ -122,6 +122,7 @@ k8s_objects(
     name = "monitoring-setup",
     objects = ["%s_k8s" % name for name in SETUP.keys()]
 )
+
 k8s_objects(
     name = "monitoring",
     objects = ["%s_k8s" % name for name in MAIN.keys()]

@@ -15,9 +15,8 @@ local registry_depl = kube.Deployment("registry") {
 local registry_svc = kube.Service("registry") {
     spec:{
       selector: {"name": "registry"},
-      ports: [{port:32000, targetPort: 5000, nodePort:32000}],
+      ports: [{port:31000, targetPort: 5000, nodePort:31000}],
       type: "NodePort",
-      clusterIP: "10.96.1.2",
     }
   };
 
