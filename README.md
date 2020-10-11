@@ -25,6 +25,9 @@ bazel run //prod:apply
 ## Create a java grpc hello world client and recursively create all dependencies
 bazel run //java/com/examples/grpc-redis/client:myns-deep.apply
 
+## Setup monitoring
+bazel run //prod/monitoring:monitoring
+
 # What is going on under the hood
 
 ##  K3d
@@ -106,7 +109,7 @@ Lastly we package all the kubernetes json objects into a list, keyed by the file
 One thing that our client is dependent on is the service name and port number of the hello world server it is availiable through. We use bazel dependencies to pull out the service.yaml file from this dependency and extract the service name and port. This enables us to change the service name in one place, and then let bazel figure out what dependent service was using it and route the new value to them so they get updated as soon as possible. I opted for using the service.yaml file as an abstraction layer rather than referencing python constants as that felt leaky.
 
 #### k8s_object
-k8s_rules is a bit opionated w.r.t. how your manifests are broken down. In yaml files kubernetes allows you to smush multiple resource configs together separated only with ---, but json doesn’t allow this, nor does k8s_rules make this easy. Rather you track each and every yaml/json manifest and wrap it with a k8s_object rule and specifically declare its type. It uses this type to know which manifests might have docker image references in them which might need to be swapped out for one that bazel just barely built and pushed to a registry. In our case only the myns, or development, manifest gets this treatment.  All others get an empty map for what substitutions to perform.
+k8s_rules is a bit opionated w.r.t. how your manifests are broken down. In yaml files kubernetes allows you to smush multiple resource configs together separated only with ---, but json doesn’t allow this, nor does k8s_rules make this easy. Rather you track each and every yaml/json manifest and wrap it with a k8s_object rule and specifically declare its type. It uses this type to know which manifests might have docker image references in them which might need to be swapped out for one that bazel just barely built and pushed to a registry. In our case only the myns, or development, manifest gets this treatment.  All others get an empty map for what substitutions to perform. This results in dev/staging/prod manifests having no dependencies on the binary, so it won't need to be rebuilt when the code changes.
 
 The k8s_object is a rule generated in the WORKSPACE file because it depends on the kubernetes cluster you are using. I reuse cluster_constants.bzl to route that data in. This produces a rule that must be imported separatly from the others that come with k8s_rules.
 
@@ -117,7 +120,7 @@ This standard k8s_rules rule simply packages up multiple manifests into one unit
 Bazel compiles and runs a script which relies on kubectl existing on the host and is configured to talk to whatever cluster we used in cluster_constants. The script will push the java_image to our private docker registry running in kubernetes itself, because this is the myns environment. The prod/staging/dev targets rely on a fixed image sha. It will then do any stamping and image replacement in the manifest. It then runs kubectl using the apply action on the provided manifests. Note that the order of files is arbitrary, and should remain so.  Kubernetes is an intent based system rather than imperative one. Creating a service w/o first creating the pods that the service fronts should not generate an error but simply result in the service being non-functional until the pods come up. All manifests may have dependencies on other resources being up, but should be written in such a way that they simply wait gracefully for their dependencies.  Any harder dependencies, like the existence of the namespace or a custom resource definition, should be put in the //prod:setup build rule.
 
 #### Kubernetes world
-Bazel should have pushed the docker images into our private registry using the http schema rather than https, and k3s should know to pull them down with http thanks to the registries.yaml we fed it earlier. Kubernetes then schedules the pods and creates the services. These include a service for the java hello world route guide server, as well as a service for the redis cluster. These services will be unavailable until the java server is up, which itself is unhealthy till it can connect to the redis service. The service only connects to healthy endpoints. 
+Bazel should have pushed the docker images into our private registry using the http schema rather than https, and k3s should know to pull them down with http thanks to the registries.yaml we fed it earlier. Kubernetes then schedules the pods and creates the services. These include a service for the java hello world route guide server, as well as a service for the redis cluster. These services will be unavailable until the java server is up, which itself is unhealthy till it can connect to the redis service. It uses a grpc health checker that is invoked when the pod is checked for its ability to handle traffic. The server not only implements the route checker grpc service, but also this standard health RPC method. The implementation of this method checks to see if the server has a connection to redis. The redis service only routes connections to healthy endpoints.
 
 #### Redis as a database
 Each redis endpoint only responds healthy to accepting traffic if the CLUSTER INFO command to redis returns with “cluster_status: ok”. This is dependent on there being a quorum of masters it can connect to. This is dependent on turning up enough nodes. This is dependent on the first node getting brought up in a healthy state thanks to it being a stateful set. The stateful set uses etcd in kubernetes to confidently assert that there is only one node being turned up at a time and that node 0 is turned up and is healthy first.
@@ -126,6 +129,29 @@ A database is only as good as it's commitments, including resilience to disrupti
 
 #### Deep dependency chain turnup
 After redis comes up healthy and a cluster is formed it signals the service it can take traffic, the java server connects and opens its service to route requests. The client keeps trying to send RPCs to the server which, when opened up, make the server fetch data from redis, on whichever shard that data belongs to. The client then logs its results which you can read with kubectl logs <insert pod id>.
+
+### bazel run //prod/monitoring:monitoring
+#### Prometheus
+Prometheus was written by ex-Googlers wanting to replicate the system of monitoring enjoyed by a massive company and is now becoming the industry standard.
+
+Prometheus pulls metrics from your various microservices, tags each metric with some standard labels (key-value pairs) and then runs various rules on the data to aggregate and join with other metrics and stores it into some timeseries storage, defaulting to sqlite. Alerts can also be set up.
+
+Prometheus also pairs well with an Alert Manager to ingest alert signals and route notifications through a wide set of options.
+
+#### Prometheus exporters
+The standard way prometheus expects microservices expose their metrics is with an http server with metric_name:value lines which are parsed by prometheus. Not every service exposes metrics in this way, or predate this standard. There are a slew of exporters that can sit alongside servers like redis, cassandra, postgress…. These exporters fetch the internal telemetry in application-specific ways, then packs them in prometheus style and pushes them to prometheus.
+
+#### Grafana
+Grafana is a UI that simplifies dashboards capable of pulling from various timeseries storage systems. Grafana has its own user system, but can be configured to allow anyone to view.
+
+#### Importing YAMLs and modifying them with jsonnet
+I have imported a rule that can translate a yaml file into json. The prometheus yaml files define a slew of resources, most of which don’t need any tweaking.  At some point I needed to tweak the standard dashboards and rules, so I created the monitoring.jsonnet to handle these overrides. The difficulty is that the dashboard graph configuration and rule generation are done with raw strings, which are cumbersome. I have yet to import helper libraries that make writing metric rules and dashboards in a way that inheritance would make company standards easier to do.
+
+#### Custom Resource Definitions for dashboards and rules
+Prometheus rules and Grafana dashboards can be created at run time using their UI, but this is bad form. You should rather write this configuration, get it reviewed and checked into code, then automatically pushed out to the monitoring system in an intent-based way.  Custom Resource Definitions enable non-kubernetes developers to enrich the classes of resources that kubernetes can track.
+
+I have yet to simplify making bazel rules that make rule and dashboard creation simple. Using custom resource definitions we can update the list of dashboards on grafana at runtime w/o needing to restart it, but simply reload the dashboards.  The same dynamism can happen for prometheus.
+
 
 #TODO
 Main doc that hosts my thoughts https://docs.google.com/document/d/15_0YQdT_D2lpTCC2OfhxECfLNjz9Pt6a8bGbhF3pQ7Q/edit#heading=h.uzpgfj40m626
@@ -148,7 +174,7 @@ Main doc that hosts my thoughts https://docs.google.com/document/d/15_0YQdT_D2lp
 * FCM for alert notifications, as well as irc chats.
 * Silence Manager, I think that an existing alert manager with prometheus has one.
 * url shortener
-* canary analysis that feeds off of prometheus data and gives verdict if there is stastical difference betwen the 2 streams.
+* canary analysis that feeds off of prometheus data and gives verdict if there is stastical difference between the 2 streams.
 * load shedding library
 * ACL library
 * weekly summary of work in md format
