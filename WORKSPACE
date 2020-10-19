@@ -332,7 +332,7 @@ maven_install(
 new_git_repository(
     name = "monitoring",
     remote = "https://github.com/coreos/kube-prometheus.git",
-    commit = "9493a1a5f7090dca406a0e80d1986484c70c1acf",
+    commit = "980e95de011319b88a3b9c0787a81dcdf338a898",
     build_file = "//prod:BUILD.yaml-extraction",
 )
 
@@ -344,3 +344,13 @@ go_repository(
 )
 
 #======== End Monitoring configs ====
+
+#========== Storage configs =========
+new_git_repository(
+    name = "minio",
+    remote = "https://github.com/minio/operator.git",
+    commit = "7fcd3543a41f54ddede7e46c6b97626bea1bc2b3",
+    build_file = "//prod:BUILD.yaml-extraction",
+)
+
+#========= End Storage configs

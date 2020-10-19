@@ -76,7 +76,10 @@ k8s_objects(
 
 k8s_objects(
     name = "setup",
-    objects = [":local-registry"] + [":%s"%env for env in ENVS] + ["//prod/monitoring:monitoring-setup"],
+    objects = [":local-registry"] + 
+              [":%s"%env for env in ENVS] +
+              ["//prod/monitoring:monitoring-setup"] +
+              ["//prod/storage/minio:minio-setup"],
 )
 
 
