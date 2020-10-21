@@ -1,1 +1,1 @@
-build --action_env=USER  --javacopt="-XepDisableAllChecks"'
+build --action_env=K8S_ENV --workspace_status_command="echo K8S_ENV ${K8S_ENV:-$USER}" --javacopt="-XepDisableAllChecks"'

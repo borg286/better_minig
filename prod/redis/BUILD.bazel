@@ -1,15 +1,11 @@
 package(default_visibility = ["//visibility:public"])
 
-
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 load(":redis.bzl", "redis")
-load("//prod:cluster_consts.bzl", "ENVS")
 
-
-[redis(
+redis(
   name = "grpc-redis",
-  env = env,
-) for env in ENVS]
+)
 
 
 

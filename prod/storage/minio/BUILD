@@ -13,21 +13,21 @@ MAIN = {
   "service": "@minio//:operator-kustomize/service.yaml",
 }
 
-load("@k8s_object//:defaults.bzl", "k8s_object")
+load("@k8s_object_with_namespace//:defaults.bzl", "k8s_object_with_namespace")
 
 # Definitions for running the minio operator.
-[k8s_object(
+[k8s_object_with_namespace(
     name = name,
     template = file,
 ) for name, file in SETUP.items()]
 
-[k8s_object(
+[k8s_object_with_namespace(
     name = name,
     template = file,
 ) for name, file in MAIN.items()]
 
 # Use operator to define a minio cluster
-k8s_object(
+k8s_object_with_namespace(
     name = "minio_k8s",
     template = "minio.yaml",
 )

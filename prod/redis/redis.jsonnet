@@ -1,17 +1,10 @@
 
 local kube = import 'external/kube_jsonnet/kube.libsonnet';
 local util = import 'jsonnet/utils.libsonnet';
-local envs = import 'prod/envs.libsonnet';
 local params = std.extVar("params");
 local name = params.name;
-local namespace = params.env;
 
-local images = envs.toEnvironmentMap(
-    prod=params.image_base + "prod_tag",
-    staging=params.image_base + "staging_tag",
-    dev=params.image_base + "some_dev_tag",
-    myns=params.local_image_name
-  );
+local image = params.local_image_name;
 
 local redis_conf = '
 appendfilename "appendonly.aof"
@@ -69,7 +62,7 @@ local redis = {
     }
   },
   prestart: kube.Container("prestart") {
-    image: images[params.env],
+    image: image,
     args: ["prestart"],
     env_: {
       POD_NAME: kube.FieldRef("metadata.name"),
@@ -82,7 +75,7 @@ local redis = {
     },
   },
   sidecar: kube.Container("sidecar") {
-    image: images[params.env],
+    image: image,
     args: ["sidecar"],
     resources: {},
     ports_+: { tcp: { containerPort: 8080 } },
@@ -98,7 +91,6 @@ local redis = {
     },
   },
   statefulset: kube.StatefulSet(name) {
-    metadata+:{namespace: envs.getName(params.env)},
     spec+: {
       replicas: 6,
       template+: {
@@ -120,29 +112,26 @@ local redis = {
       volumeClaimTemplates_+: {
         name: {
           storage: "1Gi",
-          metadata+: {namespace: envs.getName(params.env)},
           spec+: {storageClassName: "local-path"}
         },
       },
     },
   },
   redis_conf_map: kube.ConfigMap("redis-conf") {
-    metadata+: { namespace: envs.getName(params.env) },
     data: {
       "redis.conf": redis_conf,
     },
   },
   service: kube.Service(name) {
-    metadata+:{namespace: envs.getName(params.env)},
     // Make this a headless service so DNS lookups return pod IPs
     spec +:{clusterIP:'None'},
     target_pod: $.statefulset.spec.template,
   },
 };
 
-local main_name = name + "-" + namespace + "-statefulset.json";
-local service_name = name + "-" + namespace + "-svc.json";
-local redis_conf_name = name + "-" + namespace + "-conf.json";
+local main_name = name + "-statefulset.json";
+local service_name = name + "-svc.json";
+local redis_conf_name = name + "-conf.json";
 
 {
   [main_name]: redis.statefulset,

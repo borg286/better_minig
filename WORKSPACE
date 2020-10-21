@@ -221,15 +221,23 @@ k8s_defaults(
   name = "k8s_deploy",
   cluster = CLUSTER,
   kind = "deployment",
+  namespace = "{K8S_ENV}",
 )
 k8s_defaults(
   name = "k8s_job",
   cluster = CLUSTER,
   kind = "job",
+  namespace = "{K8S_ENV}",
 )
 
 k8s_defaults(
   name = "k8s_object",
+  cluster = CLUSTER,
+  namespace = "{K8S_ENV}",
+)
+
+k8s_defaults(
+  name = "k8s_object_with_namespace",
   cluster = CLUSTER,
 )
 

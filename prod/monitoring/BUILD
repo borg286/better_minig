@@ -104,15 +104,15 @@ jsonnet_to_json(
     ext_code_files = [name + ".json" for name in MAIN],
 )
 
-load("@k8s_object//:defaults.bzl", "k8s_object")
+load("@k8s_object_with_namespace//:defaults.bzl", "k8s_object_with_namespace")
 
 
-[k8s_object(
+[k8s_object_with_namespace(
     name = name + "_k8s",
     template = ":%s-patched.json" % name,
 ) for name in SETUP.keys()]
 
-[k8s_object(
+[k8s_object_with_namespace(
     name = name + "_k8s",
     template = ":%s-patched.json" % name,
 ) for name in MAIN.keys()]
