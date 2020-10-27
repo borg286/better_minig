@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  init-script.sh: |-
+    keytool -import -trustcacerts -alias k3sroot -file /tmp/certs/k3s.crt -keystore /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/cacerts -storepass changeit
+    /opt/front50/bin/front50 
+kind: ConfigMap
+metadata:
+  name: init-script

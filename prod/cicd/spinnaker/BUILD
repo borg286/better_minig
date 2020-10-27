@@ -36,6 +36,12 @@ jsonnet_to_json(
 )
 
 k8s_object_with_namespace(
+    name = "init-config-map",
+    kind = "ConfigMap",
+    template = "init.yaml",
+)
+
+k8s_object_with_namespace(
     name = "operator-namespace",
     kind = "namespace",
     template = "operator-namespace.json",
@@ -70,7 +76,8 @@ load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 k8s_objects(
     name = "setup",
     objects = [":namespace", ":operator-namespace"] + 
-              [name for name in SETUP.keys()]
+              [name for name in SETUP.keys()] +
+              ["init-config-map"]
 )
 
 k8s_objects(
