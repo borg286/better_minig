@@ -1,4 +1,4 @@
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive","http_file")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 
 
@@ -362,3 +362,21 @@ new_git_repository(
 )
 
 #========= End Storage configs
+
+http_file(
+    name = "cert-reflector",
+    downloaded_file_path="reflector.yaml",
+    sha256 = "21a56d183a5d23da144b1fba8498a11bafa7fefc5d6620da97a1f11da4f2ee31",
+    urls = ["https://github.com/emberstack/kubernetes-reflector/releases/latest/download/reflector.yaml"]
+)
+
+
+
+#========= Operators ===========
+new_git_repository(
+    name = "spinnaker-operator",
+    remote = "https://github.com/armory/spinnaker-operator.git",
+    commit = "6458017c934672c553f5e7be4494c22115558513",
+    build_file = "//prod:BUILD.yaml-extraction",
+)
+#========= End Operators configs===

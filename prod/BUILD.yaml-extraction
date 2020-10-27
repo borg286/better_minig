@@ -1,6 +1,7 @@
 exports_files(
     glob([
         "**/*.yaml",
+        "**/*.yml",
     ]),
 )
 exports_files(

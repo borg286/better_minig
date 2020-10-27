@@ -69,13 +69,18 @@ k8s_objects(
     name = "local-registry",
     objects = [":registry-depl", ":registry-svc"],
 )
+k8s_object_with_namespace(
+    name = "cert-reflector",
+    template = "@cert-reflector//file:file"
+)
 
 k8s_objects(
     name = "setup",
     objects = [":local-registry"] + 
               [":%s"%env for env in ENVS] +
               ["//prod/monitoring:monitoring-setup"] +
-              ["//prod/storage/minio:minio-setup"],
+              ["//prod/storage/minio:setup"] +
+              [":cert-reflector"]
 )
 
 

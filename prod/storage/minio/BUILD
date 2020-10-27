@@ -35,16 +35,16 @@ k8s_object_with_namespace(
 load("@io_bazel_rules_k8s//k8s:objects.bzl", "k8s_objects")
 
 k8s_objects(
-    name = "minio-setup",
+    name = "setup",
     objects = [name for name in SETUP.keys()]
 )
 
 k8s_objects(
-    name = "minio-operator",
+    name = "operator",
     objects = [name for name in MAIN.keys()]
 )
 
 k8s_objects(
     name = "minio",
-    objects = ["minio_k8s", ":minio-operator"]
+    objects = ["minio_k8s", ":operator"]
 )
